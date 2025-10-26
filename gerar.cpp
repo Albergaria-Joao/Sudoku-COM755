@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
-
+#include <random>
+#include <chrono>
 
 bool preencher(int tab[9][9], int l = 0, int c = 0);
 bool verificar(int tab[9][9], int l, int c, int num);
@@ -9,6 +10,7 @@ int main() {
 
     int tabuleiro[9][9] = {0}; 
     std::cout << "Hello world\n"; // cout = character out
+
     preencher(tabuleiro);
 
     for (int i = 0; i < 9; i++) {
@@ -22,11 +24,41 @@ int main() {
 }
   
 bool verificar(int tab[9][9], int l, int c, int num) {
+    // Verificar se não tem igual na linha e coluna
     for (int i = 0; i < 9; i++) {
         if (tab[i][c] == num || tab[l][i] == num) {
             return false;
         }
     }
+
+
+    // Verificar se não tem igual nos "sub" quadradinhos 3x3
+    int pX, pY;
+    if (l < 3) {
+        pX = 1;
+    } else if (l < 6) {
+        pX = 4;
+    } else {
+        pX = 7;
+    }
+
+    if (c < 3) {
+        pY = 1;
+    } else if (c < 6) {
+        pY = 4;
+    } else {
+        pY = 7;
+    }
+    
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            if (tab[pX + i][pY + j] == num) {
+                return false;
+            }
+        }
+    }
+
+
     return true;
 }   
 
@@ -39,11 +71,14 @@ bool preencher(int tab[9][9], int l, int c) {
     int proxL = (c == 8) ? l + 1 : l;
     int proxC = (c + 1) % 9;
     
-    int nums[9] = {1,2,3,4,5,6,7,8,9};
+    std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
 
-    
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rng(seed);
 
-    for (int num = 1; num <= 9; num++) {
+    std::shuffle(numeros.begin(), numeros.end(), rng);
+
+    for (int num : numeros) {
         if (verificar(tab, l, c, num)) {
             tab[l][c] = num;
             if (preencher(tab, proxL, proxC)) {
