@@ -2,9 +2,19 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <cstring> 
+//#include "httplib.h"
+//#include <nlohmann/json.hpp>
+
+#include <cstdlib> // Needed for rand() and srand()
+#include <ctime>   // Needed for time()
+
 
 bool preencher(int tab[9][9], int l = 0, int c = 0);
 bool verificar(int tab[9][9], int l, int c, int num);
+void criarJogo(int tab[9][9], int n_brancos);
+
+//using json = nlohmann::json;
 
 int main() {
 
@@ -12,10 +22,24 @@ int main() {
     std::cout << "Hello world\n"; // cout = character out
 
     preencher(tabuleiro);
-
+    srand(time(0));
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
             std::cout << tabuleiro[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+    
+    int jogo[9][9];
+
+    std::memcpy(jogo, tabuleiro, sizeof(tabuleiro));
+    std::cout << "Copiou\n";
+    criarJogo(jogo, 40);
+    
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            std::cout << jogo[i][j] << " ";
         }
         std::cout << "\n";
     }
@@ -30,7 +54,6 @@ bool verificar(int tab[9][9], int l, int c, int num) {
             return false;
         }
     }
-
 
     // Verificar se não tem igual nos "sub" quadradinhos 3x3
     int pX, pY;
@@ -57,7 +80,6 @@ bool verificar(int tab[9][9], int l, int c, int num) {
             }
         }
     }
-
 
     return true;
 }   
@@ -90,6 +112,18 @@ bool preencher(int tab[9][9], int l, int c) {
 
     return false;
 }
+
+void criarJogo(int tab[9][9], int n_brancos) {
+    for (int i = 0; i < n_brancos; i++) {
+        int r_l = rand() % 9;
+        int r_c = rand() % 9;
+        if (tab[r_l][r_c] != 0) {
+            tab[r_l][r_c] = 0;
+        }
+
+    }
+}
+
 
     // for (int i = 0; i < 9; i++) {
     //     for (int j = -1; j < 2; j++) {
