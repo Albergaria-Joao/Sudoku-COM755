@@ -3,36 +3,39 @@
 #include <random>
 #include <chrono>
 #include <cstring> 
+#include <array>
 //#include "httplib.h"
 //#include <nlohmann/json.hpp>
 
 #include <cstdlib> // Needed for rand() and srand()
 #include <ctime>   // Needed for time()
 
+using Tabuleiro = std::array<std::array<int, 9>, 9>;
 
-bool preencher(int tab[9][9], int l = 0, int c = 0);
-bool verificar(int tab[9][9], int l, int c, int num);
-void criarJogo(int tab[9][9], int n_brancos);
+bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
+bool verificar(Tabuleiro& tab, int l, int c, int num);
+void criarJogo(Tabuleiro& tab, int n_brancos);
 
 //using json = nlohmann::json;
 
+
+
 int main() {
 
-    int tabuleiro[9][9] = {0}; 
+    Tabuleiro tab{}; 
     std::cout << "Hello world\n"; // cout = character out
 
-    preencher(tabuleiro);
+    preencher(tab);
     srand(time(0));
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            std::cout << tabuleiro[i][j] << " ";
+            std::cout << tab[i][j] << " ";
         }
         std::cout << "\n";
     }
     
-    int jogo[9][9];
-
-    std::memcpy(jogo, tabuleiro, sizeof(tabuleiro));
+    Tabuleiro jogo = tab;
+    //std::memcpy(jogo, tab, sizeof(tab));
     std::cout << "Copiou\n";
     criarJogo(jogo, 40);
     
@@ -47,7 +50,7 @@ int main() {
     return 0;
 }
   
-bool verificar(int tab[9][9], int l, int c, int num) {
+bool verificar(Tabuleiro& tab, int l, int c, int num) {
     // Verificar se não tem igual na linha e coluna
     for (int i = 0; i < 9; i++) {
         if (tab[i][c] == num || tab[l][i] == num) {
@@ -84,7 +87,7 @@ bool verificar(int tab[9][9], int l, int c, int num) {
     return true;
 }   
 
-bool preencher(int tab[9][9], int l, int c) {
+bool preencher(Tabuleiro& tab, int l, int c) {
     
     if (l == 9) {
         return true;
@@ -113,10 +116,10 @@ bool preencher(int tab[9][9], int l, int c) {
     return false;
 }
 
-void criarJogo(int tab[9][9], int n_brancos) {
+void criarJogo(Tabuleiro& tab, int n_brancos) {
     for (int i = 0; i < n_brancos; i++) {
-        int r_l = rand() % 9;
-        int r_c = rand() % 9;
+        int r_l = rand() % 9; // Número aleatório de 0 a 8
+        int r_c = rand() % 9;// Número aleatório de 0 a 8
         if (tab[r_l][r_c] != 0) {
             tab[r_l][r_c] = 0;
         }
