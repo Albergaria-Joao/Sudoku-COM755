@@ -4,6 +4,8 @@
 #include <chrono>
 #include <cstring> 
 #include <array>
+#include <vector>
+
 //#include "httplib.h"
 //#include <nlohmann/json.hpp>
 
@@ -15,7 +17,7 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
 void criarJogo(Tabuleiro& tab, int n_brancos);
-
+bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
 //using json = nlohmann::json;
 
 
@@ -34,11 +36,33 @@ int main() {
         std::cout << "\n";
     }
     
-    Tabuleiro jogo = tab;
+    Tabuleiro jogo = tab; // Com essa estrutura de dado, consigo fazer essa cópia sem precisar do memcpy
     //std::memcpy(jogo, tab, sizeof(tab));
     std::cout << "Copiou\n";
     criarJogo(jogo, 40);
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            std::cout << jogo[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
     
+
+
+    std::vector<std::pair<int,int>> preenchidos;
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (jogo[i][j] != 0) {
+                preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
+                //std::cout << i << " " << j << "\n";
+            }
+        }
+    }
+
+
+    std::cout << "Resolvido:\n";
+    std::cout << resolver(jogo, preenchidos) << " resultado\n";
 
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -126,6 +150,65 @@ void criarJogo(Tabuleiro& tab, int n_brancos) {
 
     }
 }
+
+bool contemPar(const std::vector<std::pair<int,int>>& v, int i, int j) {
+    return std::any_of(v.begin(), v.end(),
+        [i,j](const std::pair<int,int>& p){ return p.first == i && p.second == j; });
+}
+
+
+
+
+bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
+    if (l == 9) {
+        return true;
+    }
+
+    int proxL = (c == 8) ? l + 1 : l;
+    int proxC = (c + 1) % 9;
+    
+    std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rng(seed);
+
+    std::shuffle(numeros.begin(), numeros.end(), rng);
+    
+    while (contemPar(preenchidos, l, c)) {
+        //std::cout << l << " " << c << "\n";
+        l = proxL;
+        c = proxC;
+
+        proxL = (c == 8) ? l + 1 : l;
+        proxC = (c + 1) % 9;
+
+    }
+    
+
+    // std::cout << "\n";
+    // for (int i = 0; i < 9; i++) {
+    //     for (int j = 0; j < 9; j++) {
+    //         std::cout << tab[i][j] << " ";
+    //     }
+    //     std::cout << "\n";
+    // }
+
+    for (int num : numeros) {
+        if (verificar(tab, l, c, num)) {
+            tab[l][c] = num;
+            //std::cout << "SOCORRO\n";
+
+            if (resolver(tab, preenchidos, proxL, proxC)) {
+                return true;
+            }
+            tab[l][c] = 0; // Se o próximo não tiver conseguido preencher, volta e vai para o próximo número neste aqui
+            
+        }
+    }
+
+    return false;
+}
+
 
 
     // for (int i = 0; i < 9; i++) {
