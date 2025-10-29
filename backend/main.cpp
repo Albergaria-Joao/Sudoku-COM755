@@ -1,3 +1,4 @@
+#define _WIN32_WINNT 0x0A00
 #include <iostream>
 #include <algorithm>
 #include <random>
@@ -5,9 +6,8 @@
 #include <cstring> 
 #include <array>
 #include <vector>
-
-//#include "httplib.h"
-//#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
+#include "httplib.h"
 
 #include <cstdlib> // Needed for rand() and srand()
 #include <ctime>   // Needed for time()
@@ -18,62 +18,123 @@ bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
 void criarJogo(Tabuleiro& tab, int n_brancos);
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
-//using json = nlohmann::json;
+using json = nlohmann::json;
 
+
+
+// int main() {
+
+//     Tabuleiro tab{}; 
+//     std::cout << "Hello world\n"; // cout = character out
+
+//     preencher(tab);
+//     srand(time(0));
+//     for (int i = 0; i < 9; i++) {
+//         for (int j = 0; j < 9; j++) {
+//             std::cout << tab[i][j] << " ";
+//         }
+//         std::cout << "\n";
+//     }
+    
+//     Tabuleiro jogo = tab; // Com essa estrutura de dado, consigo fazer essa cópia sem precisar do memcpy
+//     //std::memcpy(jogo, tab, sizeof(tab));
+//     std::cout << "Copiou\n";
+//     criarJogo(jogo, 40);
+//     for (int i = 0; i < 9; i++) {
+//         for (int j = 0; j < 9; j++) {
+//             std::cout << jogo[i][j] << " ";
+//         }
+//         std::cout << "\n";
+//     }
+    
+
+
+//     std::vector<std::pair<int,int>> preenchidos;
+
+//     for (int i = 0; i < 9; i++) {
+//         for (int j = 0; j < 9; j++) {
+//             if (jogo[i][j] != 0) {
+//                 preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
+//                 //std::cout << i << " " << j << "\n";
+//             }
+//         }
+//     }
+
+
+//     std::cout << "Resolvido:\n";
+//     std::cout << resolver(jogo, preenchidos) << " resultado\n";
+
+//     for (int i = 0; i < 9; i++) {
+//         for (int j = 0; j < 9; j++) {
+//             std::cout << jogo[i][j] << " ";
+//         }
+//         std::cout << "\n";
+//     }
+    
+//     return 0;
+// }
+
+using namespace httplib;
 
 
 int main() {
+    httplib::Server svr;
 
-    Tabuleiro tab{}; 
-    std::cout << "Hello world\n"; // cout = character out
+    // svr.Post("/verificar", [](const httplib::Request& req, httplib::Response& res) {
+    //     try {
+    //         auto body = json::parse(req.body);
+    //         std::vector<std::vector<int>> tabuleiro = body["tabuleiro"];
 
-    preencher(tab);
-    srand(time(0));
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            std::cout << tab[i][j] << " ";
+    //         bool valido = verificarSudoku(tabuleiro);
+
+    //         json resposta = { {"valido", valido} };
+    //         res.set_content(resposta.dump(), "application/json");
+    //     } catch (...) {
+    //         res.status = 400;
+    //         res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
+    //     }
+    // });
+
+
+    // Habilita CORS corretamente (uma vez só)
+    svr.set_pre_routing_handler([](const httplib::Request& req, httplib::Response& res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        return httplib::Server::HandlerResponse::Unhandled;
+    });
+
+    // Responde requisições OPTIONS (preflight)
+    svr.Options(R"(.*)", [](const httplib::Request& req, httplib::Response& res) {
+        res.status = 200; // OK
+        // NÃO adicionar headers aqui de novo! Já vêm do pre_routing_handler
+    });
+
+    svr.Post("/gerar", [](const httplib::Request& req, httplib::Response& res) {
+
+        try {
+            //auto body = json::parse(req.body);
+            Tabuleiro tab = {};
+            preencher(tab);
+            srand(time(0));
+            criarJogo(tab, 40);
+
+
+            json resposta = { {"tabuleiro", tab} };
+            res.set_content(resposta.dump(), "application/json");
+        } catch (...) {
+            res.status = 400;
+            res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
         }
-        std::cout << "\n";
-    }
-    
-    Tabuleiro jogo = tab; // Com essa estrutura de dado, consigo fazer essa cópia sem precisar do memcpy
-    //std::memcpy(jogo, tab, sizeof(tab));
-    std::cout << "Copiou\n";
-    criarJogo(jogo, 40);
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            std::cout << jogo[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    
+    });
 
 
-    std::vector<std::pair<int,int>> preenchidos;
-
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            if (jogo[i][j] != 0) {
-                preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
-                //std::cout << i << " " << j << "\n";
-            }
-        }
-    }
-
-
-    std::cout << "Resolvido:\n";
-    std::cout << resolver(jogo, preenchidos) << " resultado\n";
-
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            std::cout << jogo[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    
+    std::cout << "Servidor rodando em http://localhost:5000\n";
+    svr.listen("0.0.0.0", 5000);
     return 0;
 }
-  
+
+
 bool verificar(Tabuleiro& tab, int l, int c, int num) {
     // Verificar se não tem igual na linha e coluna
     for (int i = 0; i < 9; i++) {

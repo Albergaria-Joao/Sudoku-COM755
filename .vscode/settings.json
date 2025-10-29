@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.embeddedhtml": "html",
+    "*.css": "tailwindcss",
+    "cstdlib": "cpp",
+    "cstring": "cpp"
+  }
+}
