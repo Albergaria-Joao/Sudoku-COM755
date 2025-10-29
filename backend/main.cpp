@@ -6,6 +6,7 @@
 #include <cstring> 
 #include <array>
 #include <vector>
+
 #include "nlohmann/json.hpp"
 #include "httplib.h"
 
@@ -111,7 +112,6 @@ int main() {
     });
 
     svr.Post("/gerar", [](const httplib::Request& req, httplib::Response& res) {
-
         try {
             //auto body = json::parse(req.body);
             Tabuleiro tab = {};
@@ -119,8 +119,47 @@ int main() {
             srand(time(0));
             criarJogo(tab, 40);
 
-
             json resposta = { {"tabuleiro", tab} };
+            res.set_content(resposta.dump(), "application/json");
+        } catch (...) {
+            res.status = 400;
+            res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
+        }
+    });
+
+    svr.Post("/resolver", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto body = json::parse(req.body);
+            Tabuleiro tab = body["tabuleiro"];
+            srand(time(0));
+
+            std::vector<std::pair<int,int>> preenchidos;
+
+            auto start = std::chrono::steady_clock::now();
+
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    if (tab[i][j] != 0) {
+                        preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
+                    }
+                }
+            }
+
+            bool sucesso = resolver(tab, preenchidos);
+
+            auto end = std::chrono::steady_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+
+            std::cout << "Tempo: " << duration.count() << "s\n";
+
+            //std::cout << "resolvido";
+            json resposta = {
+                {"tabuleiro", tab},
+                {"sucesso", sucesso},
+                {"time", duration.count()}
+            };
+            std::cout << resposta.dump(2) << std::endl;
+            //std::cout << duration.count();
             res.set_content(resposta.dump(), "application/json");
         } catch (...) {
             res.status = 400;
@@ -235,13 +274,9 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 
     std::shuffle(numeros.begin(), numeros.end(), rng);
     
-    while (contemPar(preenchidos, l, c)) {
+    if (contemPar(preenchidos, l, c)) {
         //std::cout << l << " " << c << "\n";
-        l = proxL;
-        c = proxC;
-
-        proxL = (c == 8) ? l + 1 : l;
-        proxC = (c + 1) % 9;
+        return resolver(tab, preenchidos, proxL, proxC);
 
     }
     

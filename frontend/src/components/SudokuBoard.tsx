@@ -9,6 +9,7 @@ export default function SudokuBoard({ tab }) {
   useEffect(() => {
     if (!tab) return;
     setBoard(tab);
+    console.log("Tabuleiro mudou");
   }, [tab]);
 
   async function verificar() {
@@ -29,7 +30,7 @@ export default function SudokuBoard({ tab }) {
             <SudokuCell
               key={`${i}-${j}`}
               value={cell}
-              disabled={cell !== 0}
+              //disabled={cell !== 0}
               onChange={(val) => {
                 const newBoard = board.map((r, ri) =>
                   ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r
