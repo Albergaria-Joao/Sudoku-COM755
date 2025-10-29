@@ -42,6 +42,7 @@ function App() {
   }
 
   async function onNewValue(
+    newBoard: number[][],
     r: number,
     c: number,
     num: number
@@ -53,6 +54,7 @@ function App() {
     });
     const data = await res.json();
     console.log(data["valido"]);
+
     if (data["valido"] == true) {
       return true;
     }
