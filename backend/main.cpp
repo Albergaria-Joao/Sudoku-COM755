@@ -22,79 +22,26 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 using json = nlohmann::json;
 
 
-
-// int main() {
-
-//     Tabuleiro tab{}; 
-//     std::cout << "Hello world\n"; // cout = character out
-
-//     preencher(tab);
-//     srand(time(0));
-//     for (int i = 0; i < 9; i++) {
-//         for (int j = 0; j < 9; j++) {
-//             std::cout << tab[i][j] << " ";
-//         }
-//         std::cout << "\n";
-//     }
-    
-//     Tabuleiro jogo = tab; // Com essa estrutura de dado, consigo fazer essa cópia sem precisar do memcpy
-//     //std::memcpy(jogo, tab, sizeof(tab));
-//     std::cout << "Copiou\n";
-//     criarJogo(jogo, 40);
-//     for (int i = 0; i < 9; i++) {
-//         for (int j = 0; j < 9; j++) {
-//             std::cout << jogo[i][j] << " ";
-//         }
-//         std::cout << "\n";
-//     }
-    
-
-
-//     std::vector<std::pair<int,int>> preenchidos;
-
-//     for (int i = 0; i < 9; i++) {
-//         for (int j = 0; j < 9; j++) {
-//             if (jogo[i][j] != 0) {
-//                 preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
-//                 //std::cout << i << " " << j << "\n";
-//             }
-//         }
-//     }
-
-
-//     std::cout << "Resolvido:\n";
-//     std::cout << resolver(jogo, preenchidos) << " resultado\n";
-
-//     for (int i = 0; i < 9; i++) {
-//         for (int j = 0; j < 9; j++) {
-//             std::cout << jogo[i][j] << " ";
-//         }
-//         std::cout << "\n";
-//     }
-    
-//     return 0;
-// }
-
 using namespace httplib;
 
 
 int main() {
     httplib::Server svr;
 
-    // svr.Post("/verificar", [](const httplib::Request& req, httplib::Response& res) {
-    //     try {
-    //         auto body = json::parse(req.body);
-    //         std::vector<std::vector<int>> tabuleiro = body["tabuleiro"];
+    svr.Post("/verificar", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto body = json::parse(req.body);
+            Tabuleiro tabuleiro = body["tabuleiro"];
 
-    //         bool valido = verificarSudoku(tabuleiro);
+            bool valido = verificar(tabuleiro, body["r"], body["c"], body["num"]);
 
-    //         json resposta = { {"valido", valido} };
-    //         res.set_content(resposta.dump(), "application/json");
-    //     } catch (...) {
-    //         res.status = 400;
-    //         res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
-    //     }
-    // });
+            json resposta = { {"valido", valido} };
+            res.set_content(resposta.dump(), "application/json");
+        } catch (...) {
+            res.status = 400;
+            res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
+        }
+    });
 
 
     // Habilita CORS corretamente (uma vez só)
@@ -257,8 +204,6 @@ bool contemPar(const std::vector<std::pair<int,int>>& v, int i, int j) {
 }
 
 
-
-
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
     if (l == 9) {
         return true;
@@ -280,15 +225,6 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 
     }
     
-
-    // std::cout << "\n";
-    // for (int i = 0; i < 9; i++) {
-    //     for (int j = 0; j < 9; j++) {
-    //         std::cout << tab[i][j] << " ";
-    //     }
-    //     std::cout << "\n";
-    // }
-
     for (int num : numeros) {
         if (verificar(tab, l, c, num)) {
             tab[l][c] = num;
@@ -304,42 +240,3 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 
     return false;
 }
-
-
-
-    // for (int i = 0; i < 9; i++) {
-    //     for (int j = -1; j < 2; j++) {
-    //         for (int k = -1; k < 2; k++) {
-    //             tabuleiro[pivos[i][0] + j][pivos[i][1] + k] = i;
-    //         }
-    //     }
-    // }
-
-    // int nums[9] = {1,2,3,4,5,6,7,8,9};
-
-    // for (int i = 0; i < 9; i++) {
-    //     for (int j = 0; j < 9; j++) {
-
-    //         for (int k = 0; k < 9; k++) {
-    //             int valor = nums[k];
-                
-    //             bool impedido = false;
-
-
-    //             for (int l = 0; l < 9; l++) {
-    //                 if (tabuleiro[i][l] == valor || tabuleiro[l][j] == valor) {
-    //                     impedido = true;
-    //                     break;
-    //                 }
-    //             }
-    //             if (impedido == false) {
-    //                 tabuleiro[i][j] = valor;
-    //                 break;
-    //             }
-    //         }
-            
-            
-
-    //     }
-    //     //std::cout << "\n";
-    // }

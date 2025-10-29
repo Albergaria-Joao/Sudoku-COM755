@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import SudokuCell from "./SudokuCell";
 
-export default function SudokuBoard({ tab }: { tab: number[][] }) {
+export default function SudokuBoard({
+  tab,
+  onNewValue,
+}: {
+  tab: number[][];
+  onNewValue: (r: number, c: number, num: number) => Promise<boolean>;
+}) {
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
+
+  const [valid, setValid] = useState<boolean>(false);
 
   useEffect(() => {
     if (!tab) return;
@@ -32,11 +40,17 @@ export default function SudokuBoard({ tab }: { tab: number[][] }) {
               value={cell}
               disabled={false}
               onChange={(val) => {
-                const newBoard = board.map((r, ri) =>
-                  ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r
+                // Função usada para atualizar o valor da variável tabuleiro (para cada célula, verifica se houvee uma mudança)
+                const newBoard = board.map(
+                  (
+                    r,
+                    ri // ri = row index
+                  ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual que foi mudada, atualiza o valor
                 );
                 setBoard(newBoard);
+                setValid(!onNewValue(i, j, val));
               }}
+              valid={valid}
             />
           ))
         )}

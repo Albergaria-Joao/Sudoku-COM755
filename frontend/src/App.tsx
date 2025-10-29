@@ -8,7 +8,7 @@ import Timer from "./components/Timer";
 import UploadBoard from "./components/UploadBoard";
 
 function App() {
-  const [tabuleiro, setTabuleiro] = useState<number[][]>(
+  const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
   const [time, setTime] = useState<number>(0);
@@ -19,7 +19,7 @@ function App() {
       headers: { "Content-Type": "application/json" },
     });
     const data = await res.json();
-    setTabuleiro(data["tabuleiro"]);
+    setBoard(data["tabuleiro"]);
   }
 
   useEffect(() => {
@@ -30,15 +30,34 @@ function App() {
     const res = await fetch("http://localhost:5000/resolver", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tabuleiro: tabuleiro }),
+      body: JSON.stringify({ tabuleiro: board }),
     });
     console.log("resolveu");
     const data = await res.json();
     setTime(data["time"]);
-    setTabuleiro(data["tabuleiro"]);
+    setBoard(data["tabuleiro"]);
 
     console.log(time);
     //alert(data.valido ? "✅ Sudoku válido!" : "❌ Sudoku inválido!");
+  }
+
+  async function onNewValue(
+    r: number,
+    c: number,
+    num: number
+  ): Promise<boolean> {
+    const res = await fetch("http://localhost:5000/verificar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tabuleiro: board, r: r, c: c, num: num }),
+    });
+    const data = await res.json();
+    console.log(data["valido"]);
+    if (data["valido"] == true) {
+      return true;
+    }
+
+    return false;
   }
 
   function onUpload(file: File | null): void {
@@ -75,12 +94,12 @@ function App() {
         return; // Stop parsing if any row is invalid
       }
     }
-    setTabuleiro(newBoard);
+    setBoard(newBoard);
   }
 
   return (
     <div>
-      <SudokuBoard tab={tabuleiro}></SudokuBoard>
+      <SudokuBoard tab={board} onNewValue={onNewValue}></SudokuBoard>
       <GenButton onGenGameClick={onGenGameClick}></GenButton>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
       <Timer t={time}></Timer>
