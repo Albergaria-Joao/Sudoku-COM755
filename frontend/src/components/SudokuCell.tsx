@@ -11,13 +11,6 @@ export default function SudokuCell({
   disabled,
   valid,
 }: Props) {
-  const [incorrect, setIncorrect] = useState<boolean>(false);
-
-  useEffect(() => {
-    console.log("VALOR ALTERADO");
-    setIncorrect(valid);
-  }, [valid]);
-
   return (
     <input
       type="number"
@@ -27,7 +20,7 @@ export default function SudokuCell({
       disabled={disabled}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
       className={`${
-        incorrect ? "text-black" : "text-red-500"
+        valid ? "text-black" : "text-red-500 focus:ring-red-500"
       } w-10 h-10 text-center border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
     />
   );

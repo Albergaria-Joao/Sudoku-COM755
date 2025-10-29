@@ -12,7 +12,12 @@ export default function SudokuBoard({
     Array(9).fill(Array(9).fill(0))
   );
 
-  const [valid, setValid] = useState<boolean>(false);
+  // Usa uma matriz de estado para atualizar cada célula separada
+  const [validMatrix, setValidMatrix] = useState<boolean[][]>(
+    Array(9)
+      .fill(null)
+      .map(() => Array(9).fill(true))
+  );
 
   useEffect(() => {
     if (!tab) return;
@@ -45,13 +50,17 @@ export default function SudokuBoard({
                   (
                     r,
                     ri // ri = row index
-                  ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual que foi mudada, atualiza o valor
+                  ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual, atualiza seu valor no tabuleiro
                 );
                 setBoard(newBoard);
                 const v = await onNewValue(newBoard, i, j, val);
-                setValid(v);
+                // Atualiza apenas a célula que foi modificada
+                const newValidMatrix = validMatrix.map((r, ri) =>
+                  ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r
+                );
+                setValidMatrix(newValidMatrix);
               }}
-              valid={valid}
+              valid={validMatrix[i][j]}
             />
           ))
         )}

@@ -24,7 +24,7 @@ function App() {
 
   useEffect(() => {
     onGenGameClick();
-  }, []);
+  }, []); // Roda isso logo que carregar a página
 
   async function onSolveClick(): Promise<void> {
     const res = await fetch("http://localhost:5000/resolver", {
@@ -38,7 +38,6 @@ function App() {
     setBoard(data["tabuleiro"]);
 
     console.log(time);
-    //alert(data.valido ? "✅ Sudoku válido!" : "❌ Sudoku inválido!");
   }
 
   async function onNewValue(
@@ -53,8 +52,7 @@ function App() {
       body: JSON.stringify({ tabuleiro: board, r: r, c: c, num: num }),
     });
     const data = await res.json();
-    console.log(data["valido"]);
-
+    //console.log(data["valido"]);
     if (data["valido"] == true) {
       return true;
     }
