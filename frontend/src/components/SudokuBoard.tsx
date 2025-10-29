@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SudokuCell from "./SudokuCell";
 
-export default function SudokuBoard({ tab }) {
+export default function SudokuBoard({ tab }: { tab: number[][] }) {
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
@@ -12,15 +12,15 @@ export default function SudokuBoard({ tab }) {
     console.log("Tabuleiro mudou");
   }, [tab]);
 
-  async function verificar() {
-    const res = await fetch("http://localhost:5000/verificar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tabuleiro: board }),
-    });
-    const data = await res.json();
-    alert(data.valido ? "✅ Sudoku válido!" : "❌ Sudoku inválido!");
-  }
+  // async function verificar() {
+  //   const res = await fetch("http://localhost:5000/verificar", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ tabuleiro: board }),
+  //   });
+  //   const data = await res.json();
+  //   alert(data.valido ? "✅ Sudoku válido!" : "❌ Sudoku inválido!");
+  // }
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -30,7 +30,7 @@ export default function SudokuBoard({ tab }) {
             <SudokuCell
               key={`${i}-${j}`}
               value={cell}
-              //disabled={cell !== 0}
+              disabled={false}
               onChange={(val) => {
                 const newBoard = board.map((r, ri) =>
                   ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r
@@ -43,7 +43,7 @@ export default function SudokuBoard({ tab }) {
       </div>
 
       <button
-        onClick={verificar}
+        //onClick={verificar}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         Verificar Sudoku
