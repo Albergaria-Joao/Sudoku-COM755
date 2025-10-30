@@ -43,7 +43,7 @@ export default function SudokuBoard({
             <SudokuCell
               key={`${i}-${j}`}
               value={cell}
-              disabled={false}
+              //disabled={false}
               onChange={async (val) => {
                 // Função usada para atualizar o valor da variável tabuleiro (para cada célula, verifica se houvee uma mudança)
                 const newBoard = board.map(
@@ -53,7 +53,7 @@ export default function SudokuBoard({
                   ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual, atualiza seu valor no tabuleiro
                 );
                 setBoard(newBoard);
-                const v = await onNewValue(newBoard, i, j, val);
+                const v = await onNewValue(i, j, val);
                 // Atualiza apenas a célula que foi modificada
                 const newValidMatrix = validMatrix.map((r, ri) =>
                   ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r

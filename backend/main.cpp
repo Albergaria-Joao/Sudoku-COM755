@@ -24,6 +24,8 @@ using json = nlohmann::json;
 
 using namespace httplib;
 
+#define PORT 5000
+
 
 int main() {
     httplib::Server svr;
@@ -106,7 +108,7 @@ int main() {
                 {"time", duration.count()}
             };
             std::cout << resposta.dump(2) << std::endl;
-            //std::cout << duration.count();
+            std::cout << duration.count();
             res.set_content(resposta.dump(), "application/json");
         } catch (...) {
             res.status = 400;
@@ -115,8 +117,8 @@ int main() {
     });
 
 
-    std::cout << "Servidor rodando em http://localhost:5000\n";
-    svr.listen("0.0.0.0", 5000);
+    //std::cout << "Servidor rodando em http://localhost:5000\n";
+    svr.listen("0.0.0.0", PORT);
     return 0;
 }
 

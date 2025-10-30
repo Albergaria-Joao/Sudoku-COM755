@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+//import { useState, useEffect } from "react";
 
 type Props = {
   value: number;
   onChange: (val: number) => void;
+  //disabled: boolean;
+  valid: boolean;
 };
 
 export default function SudokuCell({
   value,
   onChange,
-  disabled,
+  //disabled,
   valid,
 }: Props) {
   return (
@@ -17,7 +19,7 @@ export default function SudokuCell({
       min="1"
       max="9"
       value={value || ""}
-      disabled={disabled}
+      //disabled={disabled}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
       className={`${
         valid ? "text-black" : "text-red-500 focus:ring-red-500"

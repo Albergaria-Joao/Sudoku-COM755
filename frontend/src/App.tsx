@@ -8,13 +8,16 @@ import Timer from "./components/Timer";
 import UploadBoard from "./components/UploadBoard";
 
 function App() {
+  const backend = "http://localhost:5000";
+  console.log(backend);
+
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
   const [time, setTime] = useState<number>(0);
 
   async function onGenGameClick(): Promise<void> {
-    const res = await fetch("http://localhost:5000/gerar", {
+    const res = await fetch(`${backend}/gerar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
@@ -27,7 +30,7 @@ function App() {
   }, []); // Roda isso logo que carregar a página
 
   async function onSolveClick(): Promise<void> {
-    const res = await fetch("http://localhost:5000/resolver", {
+    const res = await fetch(`${backend}/resolver`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tabuleiro: board }),
@@ -41,12 +44,11 @@ function App() {
   }
 
   async function onNewValue(
-    newBoard: number[][],
     r: number,
     c: number,
     num: number
   ): Promise<boolean> {
-    const res = await fetch("http://localhost:5000/verificar", {
+    const res = await fetch(`${backend}/verificar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tabuleiro: board, r: r, c: c, num: num }),
