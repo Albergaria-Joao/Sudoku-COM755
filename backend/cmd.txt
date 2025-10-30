@@ -5,3 +5,7 @@ ou
 mkdir -p build && g++ main.cpp -o build/server -std=c++17 -lws2_32
 
 .\build\server.exe
+
+
+docker compose up --build
+(mudando as portas para 8080)
