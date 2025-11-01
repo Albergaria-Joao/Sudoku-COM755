@@ -17,7 +17,7 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 
 bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
-void criarJogo(Tabuleiro& tab, int n_brancos);
+void criarJogo(Tabuleiro& tab, int dif);
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
 using json = nlohmann::json;
 
@@ -62,11 +62,13 @@ int main() {
 
     svr.Post("/gerar", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            //auto body = json::parse(req.body);
+            auto body = json::parse(req.body);
+            int dificuldade = body["dificuldade"];
+            std::cout << dificuldade;
             Tabuleiro tab = {};
             preencher(tab);
             srand(time(0));
-            criarJogo(tab, 40);
+            criarJogo(tab, dificuldade);
 
             json resposta = { {"tabuleiro", tab} };
             res.set_content(resposta.dump(), "application/json");
@@ -189,12 +191,42 @@ bool preencher(Tabuleiro& tab, int l, int c) {
     return false;
 }
 
-void criarJogo(Tabuleiro& tab, int n_brancos) {
+void criarJogo(Tabuleiro& tab, int dif) {
+
+    int n_brancos, max, min;
+
+    switch (dif) {
+        case 0:
+            max = 45;
+            min = 32;
+            std::cout << "facil";
+            break;
+        case 1:
+            min = 46;
+            max = 49;
+            std::cout << "medio";
+            break;
+        case 2:
+            min = 50;
+            max = 53;
+            std::cout << "dificil";
+            break;
+
+    }
+    n_brancos = rand() % (max - min + 1) + min;
+
     for (int i = 0; i < n_brancos; i++) {
-        int r_l = rand() % 9; // Número aleatório de 0 a 8
-        int r_c = rand() % 9;// Número aleatório de 0 a 8
-        if (tab[r_l][r_c] != 0) {
-            tab[r_l][r_c] = 0;
+        bool apagou = false;
+        while (apagou == false) {
+            int r_l = rand() % 9; // Número aleatório de 0 a 8
+            int r_c = rand() % 9;// Número aleatório de 0 a 8
+            if (tab[r_l][r_c] != 0) {
+                tab[r_l][r_c] = 0;
+                apagou = true;
+            }
+            else {
+                continue;
+            }
         }
 
     }

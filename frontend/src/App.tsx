@@ -17,17 +17,21 @@ function App() {
   const [time, setTime] = useState<number>(0);
 
   async function onGenGameClick(): Promise<void> {
+    const dif: number = Number(
+      (document.getElementById("select_dif") as HTMLSelectElement).value
+    );
     const res = await fetch(`${backend}/gerar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dificuldade: dif }),
     });
     const data = await res.json();
     setBoard(data["tabuleiro"]);
   }
 
-  useEffect(() => {
-    onGenGameClick();
-  }, []); // Roda isso logo que carregar a página
+  // useEffect(() => {
+  //   onGenGameClick();
+  // }, []); // Roda isso logo que carregar a página
 
   async function onSolveClick(): Promise<void> {
     const res = await fetch(`${backend}/resolver`, {

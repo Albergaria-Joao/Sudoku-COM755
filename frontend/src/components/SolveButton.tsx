@@ -1,8 +1,10 @@
+import Button from "./Button";
+
 function SolveButton({ onSolveClick }: { onSolveClick: () => void }) {
   return (
-    <button onClick={() => onSolveClick()}>
+    <Button onClick={() => onSolveClick()}>
       Resolver tabuleiro com algoritmo
-    </button>
+    </Button>
   );
 }
 

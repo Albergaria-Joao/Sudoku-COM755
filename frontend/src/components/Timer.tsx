@@ -9,7 +9,7 @@ function Timer({ t }: { t: number }) {
     console.log("Tempo mudou");
   }, [t]);
 
-  return <h1>{time} ms</h1>;
+  return <h1 className="text-3xl">{time} ms</h1>;
 }
 
 export default Timer;
