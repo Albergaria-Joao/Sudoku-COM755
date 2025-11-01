@@ -29,9 +29,13 @@ function App() {
     setBoard(data["tabuleiro"]);
   }
 
-  // useEffect(() => {
-  //   onGenGameClick();
-  // }, []); // Roda isso logo que carregar a página
+  useEffect(() => {
+    //onGenGameClick();
+    fetch("http://localhost:4000/test-db")
+      .then((res) => res.json())
+      .then((data) => console.log("Banco de dados:", data))
+      .catch((err) => console.error("Erro:", err));
+  }, []); // Roda isso logo que carregar a página
 
   async function onSolveClick(): Promise<void> {
     const res = await fetch(`${backend}/resolver`, {
@@ -83,7 +87,7 @@ function App() {
 
   function parseCSV(csvText: string | ArrayBuffer | null) {
     if (typeof csvText !== "string") {
-      console.error("CSV text is not a string.");
+      console.error("Não é string");
       return;
     }
     const rows = csvText.split("\n");
@@ -96,8 +100,8 @@ function App() {
       ) {
         newBoard.push(row);
       } else {
-        console.error(`Invalid row in CSV: ${rows[i]}`);
-        return; // Stop parsing if any row is invalid
+        console.error(`Erro no csv: ${rows[i]}`);
+        return;
       }
     }
     setBoard(newBoard);

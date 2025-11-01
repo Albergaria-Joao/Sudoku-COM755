@@ -1,13 +1,13 @@
 #version: "3.8"
 services:
   backend:
-    build: ./backend
+    build: ./api
     container_name: meu_backend
     ports:
       - "8080:8080"
 
   frontend:
-    build: ./frontend
+    build: ./web
     container_name: meu_frontend
     ports:
       - "5173:80"

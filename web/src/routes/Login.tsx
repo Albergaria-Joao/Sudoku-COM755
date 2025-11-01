@@ -8,7 +8,7 @@ import Timer from "../components/Timer";
 import UploadBoard from "../components/UploadBoard";
 
 function Login() {
-  const backend = "http://localhost:5000";
+  //const backend = "http://localhost:5000";
 
   return <div></div>;
 }

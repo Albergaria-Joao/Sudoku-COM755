@@ -13,3 +13,10 @@ npx prisma migrate dev --name init ==> Faz a migração do que eu coloquei no pr
 
 npm i @prisma/client ==> inicializa o client do prisma
 npx prisma generate ==> gera o cliente do prisma
+
+Precisa colocar isso pro prisma pegar
+$env:DATABASE_URL="postgresql://postgres:password@localhost:5432/sudoku"
+
+
+node server/index.js
+para rodar o backend
