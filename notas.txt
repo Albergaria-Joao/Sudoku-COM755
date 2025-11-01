@@ -1,2 +1,15 @@
 Uso de httplib.h para criar o servidor C++ backend
 
+prisma
+
+
+npm init -y ==> Inicia pacote node
+npm i --save-dev prisma typescript ts-node @types/node nodemon ==> Instala as dependências (nodemon = fazer alterações e aparecer automaticamente)
+npx prisma init --datasource-provider postgresql ==> Inicia o prisma e fala qual o database
+
+npx prisma migrate dev --name init ==> Faz a migração do que eu coloquei no prisma para o Postgres em si (nome: init)
+        Cria um client também
+
+
+npm i @prisma/client ==> inicializa o client do prisma
+npx prisma generate ==> gera o cliente do prisma
