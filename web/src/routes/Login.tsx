@@ -26,10 +26,8 @@ function Login() {
     const data = await res.json();
 
     if (data.status === 200) {
-      // salva o login no localStorage, se quiser persistir
       localStorage.setItem("usuario", login);
 
-      // redireciona
       navigate("/");
     } else {
       alert("Usuário ou senha incorretos!");
