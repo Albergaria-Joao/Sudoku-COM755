@@ -1,4 +1,4 @@
-//import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 type Props = {
   value: number;
@@ -13,6 +13,12 @@ export default function SudokuCell({
   //disabled,
   valid,
 }: Props) {
+  useEffect(() => {
+    //onGenGameClick();
+    if (value > 9) {
+      onChange(9);
+    }
+  }, [value]);
   return (
     <input
       type="number"
@@ -23,7 +29,8 @@ export default function SudokuCell({
       onChange={(e) => onChange(Number(e.target.value) || 0)}
       className={`${
         valid ? "text-black" : "text-red-500 focus:ring-red-500"
-      } w-10 h-10 text-center border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+      } w-10 h-10 text-center border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+      [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none`}
     />
   );
 }

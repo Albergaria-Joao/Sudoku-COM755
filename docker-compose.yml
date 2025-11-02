@@ -1,15 +1,20 @@
 #version: "3.8"
 services:
-  backend:
+  api:
     build: ./api
-    container_name: meu_backend
+    container_name: api_cpp_sudoku
     ports:
       - "8080:8080"
 
   frontend:
     build: ./web
-    container_name: meu_frontend
+    container_name: frontend_sudoku
     ports:
       - "5173:80"
     depends_on:
+      - api
       - backend
+
+  backend:
+    build: ./web/server
+    container_name: backend_sudoku

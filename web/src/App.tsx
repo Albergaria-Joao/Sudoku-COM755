@@ -6,10 +6,24 @@ import "./index.css";
 import SolveButton from "./components/SolveButton";
 import Timer from "./components/Timer";
 import UploadBoard from "./components/UploadBoard";
+import Button from "./components/Button";
+
+import { useNavigate } from "react-router-dom";
 
 function App() {
   const backend = "http://localhost:5000";
   console.log(backend);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    //onGenGameClick();
+    if (
+      !localStorage.getItem("usuario") ||
+      localStorage.getItem("usuario") === ""
+    ) {
+      navigate("/login");
+    }
+  }, []); // Roda isso logo que carregar a página
 
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
@@ -28,14 +42,6 @@ function App() {
     const data = await res.json();
     setBoard(data["tabuleiro"]);
   }
-
-  useEffect(() => {
-    //onGenGameClick();
-    fetch("http://localhost:4000/test-db")
-      .then((res) => res.json())
-      .then((data) => console.log("Banco de dados:", data))
-      .catch((err) => console.error("Erro:", err));
-  }, []); // Roda isso logo que carregar a página
 
   async function onSolveClick(): Promise<void> {
     const res = await fetch(`${backend}/resolver`, {
@@ -107,8 +113,14 @@ function App() {
     setBoard(newBoard);
   }
 
+  function onLogoutClick() {
+    localStorage.removeItem("usuario");
+    navigate("/login");
+  }
+
   return (
     <div>
+      <Button onClick={onLogoutClick}>Logout</Button>
       <SudokuBoard tab={board} onNewValue={onNewValue}></SudokuBoard>
       <GenButton onGenGameClick={onGenGameClick}></GenButton>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
