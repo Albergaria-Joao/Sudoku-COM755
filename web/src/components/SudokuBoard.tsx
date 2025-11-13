@@ -3,10 +3,14 @@ import SudokuCell from "./SudokuCell";
 
 export default function SudokuBoard({
   tab,
+  generatedBoard,
   onNewValue,
+  solved,
 }: {
   tab: number[][];
+  generatedBoard: number[][];
   onNewValue: (r: number, c: number, num: number) => Promise<boolean>;
+  solved: boolean;
 }) {
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
@@ -25,6 +29,17 @@ export default function SudokuBoard({
     console.log("Tabuleiro mudou");
   }, [tab]);
 
+  useEffect(() => {
+    if (solved) {
+      // Se o tabuleiro foi resolvido, todas as células são válidas
+      setValidMatrix(
+        Array(9)
+          .fill(null)
+          .map(() => Array(9).fill(true))
+      );
+    }
+  }, [solved]);
+
   // async function verificar() {
   //   const res = await fetch("http://localhost:5000/verificar", {
   //     method: "POST",
@@ -37,13 +52,15 @@ export default function SudokuBoard({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="grid grid-cols-9 gap-1">
+      <div className="grid grid-cols-9 gap-0.1">
         {board.map((row, i) =>
           row.map((cell, j) => (
             <SudokuCell
               key={`${i}-${j}`}
               value={cell}
               //disabled={false}
+              i={i}
+              j={j}
               onChange={async (val) => {
                 // Função usada para atualizar o valor da variável tabuleiro (para cada célula, verifica se houvee uma mudança)
                 const newBoard = board.map(

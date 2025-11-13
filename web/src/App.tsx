@@ -28,7 +28,11 @@ function App() {
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
+  const [generatedBoard, setGeneratedBoard] = useState<number[][]>(
+    Array(9).fill(Array(9).fill(0))
+  );
   const [time, setTime] = useState<number>(0);
+  const [solved, setSolved] = useState<boolean>(false);
 
   async function onGenGameClick(): Promise<void> {
     const dif: number = Number(
@@ -40,7 +44,9 @@ function App() {
       body: JSON.stringify({ dificuldade: dif }),
     });
     const data = await res.json();
+
     setBoard(data["tabuleiro"]);
+    setGeneratedBoard(data["tabuleiro"]);
   }
 
   async function onSolveClick(): Promise<void> {
@@ -53,6 +59,7 @@ function App() {
     const data = await res.json();
     setTime(data["time"]);
     setBoard(data["tabuleiro"]);
+    setSolved(true);
 
     console.log(time);
   }
@@ -121,7 +128,12 @@ function App() {
   return (
     <div>
       <Button onClick={onLogoutClick}>Logout</Button>
-      <SudokuBoard tab={board} onNewValue={onNewValue}></SudokuBoard>
+      <SudokuBoard
+        tab={board}
+        generatedBoard={generatedBoard}
+        onNewValue={onNewValue}
+        solved={solved}
+      ></SudokuBoard>
       <GenButton onGenGameClick={onGenGameClick}></GenButton>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
       <Timer t={time}></Timer>
