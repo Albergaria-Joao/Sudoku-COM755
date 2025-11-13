@@ -7,6 +7,7 @@ type Props = {
   valid: boolean;
   i: number;
   j: number;
+  editable: boolean;
 };
 
 export default function SudokuCell({
@@ -16,6 +17,7 @@ export default function SudokuCell({
   valid,
   i,
   j,
+  editable,
 }: Props) {
   useEffect(() => {
     //onGenGameClick();
@@ -29,11 +31,11 @@ export default function SudokuCell({
       min="1"
       max="9"
       value={value || ""}
-      //disabled={disabled}
+      disabled={!editable}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
-      className={`${
-        valid ? "text-black" : "text-red-500 focus:ring-red-500 bg-red-200"
-      } w-11 h-11 text-center border border-gray-400 focus:outline-none focus:bg-blue-200
+      className={`${editable ? "bg-white" : "bg-gray-300 font-bold disabled"}
+        ${valid ? "text-black" : "text-red-500 focus:ring-red-500 bg-red-200"} 
+      w-11 h-11 text-center border border-gray-400 focus:outline-none focus:bg-blue-200
       [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none
       ${i % 3 === 0 ? "border-t-4 border-t-black" : ""}
       ${j % 3 === 0 ? "border-l-4 border-l-black" : ""}

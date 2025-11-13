@@ -78,6 +78,7 @@ export default function SudokuBoard({
                 setValidMatrix(newValidMatrix);
               }}
               valid={validMatrix[i][j]}
+              editable={generatedBoard[i][j] === 0}
             />
           ))
         )}
