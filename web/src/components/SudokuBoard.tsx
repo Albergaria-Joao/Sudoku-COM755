@@ -23,8 +23,17 @@ export default function SudokuBoard({
       .map(() => Array(9).fill(true))
   );
 
+  const [focusedCell, setFocusedCell] = useState({ row: -1, col: -1, val: -1 });
+
   useEffect(() => {
     if (!tab) return;
+    if (tab === generatedBoard) {
+      setValidMatrix(
+        Array(9)
+          .fill(null)
+          .map(() => Array(9).fill(true))
+      );
+    }
     setBoard(tab);
     console.log("Tabuleiro mudou");
   }, [tab]);
@@ -70,15 +79,20 @@ export default function SudokuBoard({
                   ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual, atualiza seu valor no tabuleiro
                 );
                 setBoard(newBoard);
+
                 const v = await onNewValue(i, j, val);
                 // Atualiza apenas a célula que foi modificada
                 const newValidMatrix = validMatrix.map((r, ri) =>
                   ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r
                 );
+                setFocusedCell({ row: i, col: j, val: cell });
                 setValidMatrix(newValidMatrix);
               }}
               valid={validMatrix[i][j]}
               editable={generatedBoard[i][j] === 0}
+              focusedCell={focusedCell}
+              onFocus={() => setFocusedCell({ row: i, col: j, val: cell })}
+              onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })}
             />
           ))
         )}
