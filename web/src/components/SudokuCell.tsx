@@ -34,7 +34,11 @@ export default function SudokuCell({
       disabled={!editable}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
       className={`${editable ? "bg-white" : "bg-gray-300 font-bold disabled"}
-        ${valid ? "text-black" : "text-red-500 focus:ring-red-500 bg-red-200"} 
+        ${
+          valid
+            ? "text-black"
+            : "text-red-500 focus:ring-red-500 bg-red-200 focus:bg-red-200"
+        } 
       w-11 h-11 text-center border border-gray-400 focus:outline-none focus:bg-blue-200
       [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none
       ${i % 3 === 0 ? "border-t-4 border-t-black" : ""}

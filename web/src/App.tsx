@@ -38,10 +38,13 @@ function App() {
     const dif: number = Number(
       (document.getElementById("select_dif") as HTMLSelectElement).value
     );
+    const nSol: number = Number(
+      (document.getElementById("select_nsol") as HTMLSelectElement).value
+    );
     const res = await fetch(`${backend}/gerar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dificuldade: dif }),
+      body: JSON.stringify({ dificuldade: dif, nSolucoes: nSol }),
     });
     const data = await res.json();
 
@@ -53,7 +56,7 @@ function App() {
     const res = await fetch(`${backend}/resolver`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tabuleiro: board }),
+      body: JSON.stringify({ tabuleiro: generatedBoard }),
     });
     console.log("resolveu");
     const data = await res.json();
@@ -128,6 +131,7 @@ function App() {
   return (
     <div>
       <Button onClick={onLogoutClick}>Logout</Button>
+      <h1></h1>
       <SudokuBoard
         tab={board}
         generatedBoard={generatedBoard}

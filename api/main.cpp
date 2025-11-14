@@ -17,8 +17,9 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 
 bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
-void criarJogo(Tabuleiro& tab, int dif);
+void gerarTab(Tabuleiro& tab, int dif);
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
+bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade);
 using json = nlohmann::json;
 
 
@@ -64,11 +65,14 @@ int main() {
         try {
             auto body = json::parse(req.body);
             int dificuldade = body["dificuldade"];
-            std::cout << dificuldade;
+            int nSolucoes = body.value("nSolucoes", 1);
+            //std::cout << dificuldade;
             Tabuleiro tab = {};
-            preencher(tab);
             srand(time(0));
-            criarJogo(tab, dificuldade);
+            criarJogo(tab, nSolucoes, dificuldade);
+            // preencher(tab);
+            
+            // gerarTab(tab, dificuldade);
 
             json resposta = { {"tabuleiro", tab} };
             res.set_content(resposta.dump(), "application/json");
@@ -191,7 +195,7 @@ bool preencher(Tabuleiro& tab, int l, int c) {
     return false;
 }
 
-void criarJogo(Tabuleiro& tab, int dif) {
+void gerarTab(Tabuleiro& tab, int dif) {
 
     int n_brancos, max, min;
 
@@ -199,18 +203,28 @@ void criarJogo(Tabuleiro& tab, int dif) {
         case 0:
             max = 45;
             min = 32;
-            std::cout << "facil";
+            //std::cout << "facil";
             break;
         case 1:
             min = 46;
             max = 49;
-            std::cout << "medio";
+            //std::cout << "medio";
             break;
         case 2:
             min = 50;
             max = 53;
-            std::cout << "dificil";
+            //std::cout << "dificil";
             break;
+        case 3:
+            min = 54;
+            max = 58;
+            //std::cout << "dificil";
+            break;  
+        case 4:
+            min = 59;
+            max = 64;
+            //std::cout << "dificil";
+            break;  
 
     }
     n_brancos = rand() % (max - min + 1) + min;
@@ -272,5 +286,54 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
         }
     }
 
+    return false;
+}
+
+
+
+bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade) {
+    std::vector<Tabuleiro> encontradas = {};
+    int tentativas = 0;
+    while (encontradas.size() < nSolucoes) {
+        Tabuleiro novoTab = {};
+        preencher(novoTab);
+        encontradas.push_back(novoTab); // A solução completa conta como uma solução encontrada
+        gerarTab(novoTab, dificuldade);
+
+        Tabuleiro copiaTab = novoTab;
+        std::vector<std::pair<int,int>> preenchidos;
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (novoTab[i][j] != 0) {
+                    preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
+                }
+            }
+        }
+
+        for (int i = 0; i < 10; i++) {
+            bool sucesso = resolver(copiaTab, preenchidos);
+            if (sucesso && std::find(encontradas.begin(), encontradas.end(), copiaTab) == encontradas.end()) {
+                encontradas.push_back(copiaTab);
+            }
+            if (encontradas.size() >= nSolucoes) {
+                tab = novoTab;
+                std::cout << "\nJogo criado com " << nSolucoes << " solucoes.\n";
+                for (int l = 0; l < encontradas.size(); l++) {
+                    Tabuleiro t = encontradas[l];
+                    for (int j = 0; j < 9; j++) {
+                        for (int k = 0; k < 9; k++) {
+                            std::cout << t[j][k] << " ";
+                        }
+                        std::cout << "\n";
+                    }
+                    std::cout << "\n";
+                }
+                return true;
+            }
+        }
+        std::cout << "\nFalhou. Gerar novo tabuleiro " << encontradas.size() << "/" << nSolucoes << " tentativas " << tentativas <<"\n";
+        encontradas = {};
+    }
     return false;
 }
