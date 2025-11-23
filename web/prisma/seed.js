@@ -7,15 +7,15 @@ const prisma = new PrismaClient();
 
 async function seed() {
   // tenta deletar usuário se existir
-  await prisma.usuario
+  await prisma.user
     .delete({ where: { login: "joao" } })
     .catch(() => console.log("Usuário não encontrado, criando novo"));
 
-  // cria usuário com senha criptografada
-  const user = await prisma.usuario.create({
+  // cria usuário com password criptografada
+  const user = await prisma.user.create({
     data: {
       login: "joao",
-      senha: await bcrypt.hash("joao", 10), // campo correto é 'senha'
+      password: await bcrypt.hash("joao", 10), // campo correto é 'password'
     },
   });
 

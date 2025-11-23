@@ -11,8 +11,8 @@ function Login() {
 
   useEffect(() => {
     //onGenGameClick();
-    if (localStorage.getItem("usuario")) {
-      navigate("/");
+    if (localStorage.getItem("user")) {
+      navigate("/select");
     }
   }, []); // Roda isso logo que carregar a página
 
@@ -20,21 +20,22 @@ function Login() {
     const res = await fetch(`${backend}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ login, senha: pass }),
+      body: JSON.stringify({ login, password: pass }),
     });
 
     const data = await res.json();
 
     if (data.status === 200) {
-      localStorage.setItem("usuario", login);
-
-      navigate("/");
+      localStorage.setItem("user", login);
+      localStorage.setItem("user_id", data.userId);
+      console.log(localStorage.getItem("user_id"));
+      navigate("/select");
     } else {
       alert("Usuário ou senha incorretos!");
     }
   }
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <form className="p-6 bg-white shadow-md rounded">
         <label htmlFor="login">Usuário:</label>
         <input

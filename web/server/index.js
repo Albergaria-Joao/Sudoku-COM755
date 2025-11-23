@@ -14,19 +14,75 @@ app.use(express.json());
 
 app.post("/login", async (req, res) => {
   try {
-    const { login, senha } = req.body;
-    const usuario = await prisma.usuario.findUnique({ where: { login } });
-    if (!usuario || !usuario.senha) {
+    const { login, password } = req.body;
+    const user = await prisma.user.findUnique({ where: { login } });
+    if (!user || !user.password) {
       return res.status(401).json({ error: "Usuário não encontrado" });
     }
 
-    const isValid = await bcrypt.compare(senha, usuario.senha);
+    const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
-      return res.status(401).json({ error: "Senha incorreta" });
+      return res.status(401).json({ error: "password incorreta" });
     }
 
-    res.json({ status: 200 });
+    res.json({ status: 200, login: user.login, userId: user.id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/create-game", async (req, res) => {
+  try {
+    const { board, generatedBoard, userId, diff } = req.body;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    console.log(board);
+    const game = await prisma.game.create({
+      data: {
+        curr_board: board,
+        gen_board: generatedBoard,
+        difficulty: diff,
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.json({
+      status: 200,
+      login: user.login,
+      userId: user.id,
+      gameId: game.id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/get-games", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        games: true,
+      },
+    });
+
+    const gamesList = user?.games;
+
+    res.json({
+      status: 200,
+      games: gamesList,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({

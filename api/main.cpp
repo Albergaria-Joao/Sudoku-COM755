@@ -22,6 +22,7 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade);
 using json = nlohmann::json;
 
+bool stop = false;
 
 using namespace httplib;
 
@@ -69,13 +70,18 @@ int main() {
             //std::cout << dificuldade;
             Tabuleiro tab = {};
             srand(time(0));
-            criarJogo(tab, nSolucoes, dificuldade);
+            bool criou = criarJogo(tab, nSolucoes, dificuldade);
             // preencher(tab);
             
             // gerarTab(tab, dificuldade);
-
-            json resposta = { {"tabuleiro", tab} };
-            res.set_content(resposta.dump(), "application/json");
+            if (criou == true) {
+                json resposta = { {"tabuleiro", tab} };
+                res.set_content(resposta.dump(), "application/json");
+            }
+            else {
+                res.status = 500;
+                res.set_content("{\"erro\": \"Não foi possível criar o jogo\"}", "application/json");
+            }
         } catch (...) {
             res.status = 400;
             res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
@@ -294,7 +300,7 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade) {
     std::vector<Tabuleiro> encontradas = {};
     int tentativas = 0;
-    while (encontradas.size() < nSolucoes) {
+    while (encontradas.size() < nSolucoes && tentativas < 10000) {
         Tabuleiro novoTab = {};
         preencher(novoTab);
         encontradas.push_back(novoTab); // A solução completa conta como uma solução encontrada
@@ -310,14 +316,16 @@ bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade) {
                 }
             }
         }
-
+        tentativas++;
         for (int i = 0; i < 10; i++) {
             bool sucesso = resolver(copiaTab, preenchidos);
+            
             if (sucesso && std::find(encontradas.begin(), encontradas.end(), copiaTab) == encontradas.end()) {
                 encontradas.push_back(copiaTab);
             }
             if (encontradas.size() >= nSolucoes) {
                 tab = novoTab;
+                
                 std::cout << "\nJogo criado com " << nSolucoes << " solucoes.\n";
                 for (int l = 0; l < encontradas.size(); l++) {
                     Tabuleiro t = encontradas[l];

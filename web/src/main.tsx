@@ -1,7 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import Game from "./routes/Game.tsx";
 import Login from "./routes/Login.tsx";
+import Select from "./routes/Select.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Imports para usar coisas de bibliotecas
@@ -11,11 +12,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // O que será renderizado na página inicial
+    element: <Game />, // O que será renderizado na página inicial
   },
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/select",
+    element: <Select />,
   },
 ]);
 

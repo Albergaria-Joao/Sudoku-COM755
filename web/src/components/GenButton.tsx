@@ -1,6 +1,9 @@
 import Button from "./Button";
+import { useNavigate } from "react-router-dom";
+
 
 function GenButton({ onGenGameClick }: { onGenGameClick: () => void }) {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center gap-2 mt-4">
       <h1>Dificuldade: </h1>

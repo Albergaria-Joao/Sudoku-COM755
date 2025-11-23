@@ -32,7 +32,7 @@ export default function SudokuCell({
     }
   }, [value]);
 
-  console.log("Focused cell:", focusedCell);
+  //console.log("Focused cell:", focusedCell);
   const isHighlighted =
     focusedCell.row !== null &&
     (focusedCell.row === i || // mesma linha
