@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 type StateType = {
   board: number[][];
+  generatedBoard: number[][];
 };
 
 function Game() {
@@ -40,7 +41,9 @@ function Game() {
       navigate("/login");
     } else if (localStorage.getItem("gameOn") === "true") {
       setBoard(state?.board || Array(9).fill(Array(9).fill(0)));
-      setGeneratedBoard(state?.board || Array(9).fill(Array(9).fill(0)));
+      setGeneratedBoard(
+        state?.generatedBoard || Array(9).fill(Array(9).fill(0))
+      );
     } else {
       navigate("/select");
     }
@@ -76,6 +79,10 @@ function Game() {
     }
   }
 
+  function setBoardState(newBoard: number[][]) {
+    setBoard(newBoard);
+  }
+
   function parseCSV(csvText: string | ArrayBuffer | null) {
     if (typeof csvText !== "string") {
       console.error("Não é string");
@@ -99,25 +106,36 @@ function Game() {
   }
 
   async function onSaveClick(): Promise<void> {
+    console.log("Salvando jogo...", localStorage.getItem("game_id"));
+
     const res = await fetch(`${backend}/save-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        board,
-        generatedBoard,
-        userId: localStorage.getItem("user_id"),
+        gameId: localStorage.getItem("game_id"),
+        board: board,
       }),
     });
+
+    // Salva no localstorage, etc
+    if (res.status !== 200) {
+      alert("Erro ao salvar o jogo.");
+      return;
+    }
+    localStorage.setItem("game_id", "");
+    localStorage.setItem("gameOn", "false");
+    navigate("/select");
   }
 
   return (
     <div>
       <h1>Bem-vindo, {localStorage.getItem("usuario")}</h1>
-      <Button onClick={onSaveClick}>Novo Jogo</Button>
+      <Button onClick={onSaveClick}>Voltar à seleção</Button>
       <SudokuBoard
         tab={board}
         generatedBoard={generatedBoard}
         solved={solved}
+        setBoardState={setBoardState}
       ></SudokuBoard>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
       <Timer t={time}></Timer>

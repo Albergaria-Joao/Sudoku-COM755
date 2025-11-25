@@ -101,8 +101,32 @@ app.post("/load-game", async (req, res) => {
 
     res.json({
       status: 200,
+      gameId: game?.id,
       board: game?.curr_board,
       generatedBoard: game?.gen_board,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/save-game", async (req, res) => {
+  try {
+    const { gameId, board } = req.body;
+
+    console.log(board);
+    const update = await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        curr_board: board,
+      },
+    });
+
+    res.json({
+      status: 200,
     });
   } catch (err) {
     console.error(err);

@@ -48,7 +48,7 @@ export default function SudokuCell({
   } else if (isSameValue && isHighlighted) {
     bgClass = "bg-yellow-200";
   } else if (!editable && isHighlighted) {
-    bgClass = "bg-blue-100";
+    bgClass = "bg-gray-400";
   } else if (isHighlighted) {
     bgClass = "bg-blue-200";
   } else if (!editable) {

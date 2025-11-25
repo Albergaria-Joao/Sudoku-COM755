@@ -5,10 +5,12 @@ export default function SudokuBoard({
   tab,
   generatedBoard,
   solved,
+  setBoardState,
 }: {
   tab: number[][];
   generatedBoard: number[][];
   solved: boolean;
+  setBoardState: (newBoard: number[][]) => void;
 }) {
   const api = "http://localhost:5000";
 
@@ -98,6 +100,7 @@ export default function SudokuBoard({
                   ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual, atualiza seu valor no tabuleiro
                 );
                 setBoard(newBoard);
+                setBoardState(newBoard);
 
                 const v = await onNewValue(i, j, val);
                 // Atualiza apenas a célula que foi modificada
@@ -106,7 +109,7 @@ export default function SudokuBoard({
                 );
                 setFocusedCell({ row: i, col: j, val: cell });
                 setValidMatrix(newValidMatrix);
-                console.log(v);
+                //console.log(v);
               }}
               valid={validMatrix[i][j]}
               editable={generatedBoard[i][j] === 0}
