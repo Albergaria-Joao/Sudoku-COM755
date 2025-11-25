@@ -4,6 +4,7 @@ import "./../index.css";
 import GenButton from "../components/GenButton";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
+import LoadButton from "../components/LoadButton";
 
 export default function Select() {
   const api = "http://localhost:5000";
@@ -41,6 +42,8 @@ export default function Select() {
     const nSol: number = Number(
       (document.getElementById("select_nsol") as HTMLSelectElement).value
     );
+
+    // Faz request para o C++ gerar o tabuleiro
     const res = await fetch(`${api}/gerar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,6 +55,7 @@ export default function Select() {
     }
     const data = await res.json();
 
+    // Coloca o tabuleiro no DB
     const gameDB = await fetch(`${backend}/create-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,10 +67,12 @@ export default function Select() {
       }),
     });
 
+    // Salva no localstorage, etc
     const gameData = await gameDB.json();
     localStorage.setItem("game_id", gameData.gameId);
     console.log("Game ID:", gameData.gameId);
     //localStorage.setItem("game", "comecou");
+    localStorage.setItem("gameOn", "true");
     navigate("/", {
       state: {
         board: data["tabuleiro"],
@@ -77,6 +83,28 @@ export default function Select() {
   function onLogoutClick() {
     localStorage.removeItem("user");
     navigate("/login");
+  }
+
+  async function onLoadClick(gameId: String): Promise<void> {
+    console.log("Loading game ID:", gameId);
+    const gameDB = await fetch(`${backend}/load-game`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameId: gameId,
+      }),
+    });
+
+    // Salva no localstorage, etc
+    const gameData = await gameDB.json();
+    localStorage.setItem("game_id", gameData.gameId);
+    localStorage.setItem("gameOn", "true");
+    navigate("/", {
+      state: {
+        board: gameData["board"],
+        generatedBoard: gameData["generatedBoard"],
+      },
+    });
   }
 
   return (
@@ -110,6 +138,11 @@ export default function Select() {
                 <td>{new Date(game.updatedAt).toLocaleString()}</td>
                 <td>{game.difficulty}</td>
                 <td>{game.status}</td>
+                <td>
+                  <LoadButton
+                    onLoadClick={() => onLoadClick(game.id)}
+                  ></LoadButton>
+                </td>
               </tr>
             ))
           )}

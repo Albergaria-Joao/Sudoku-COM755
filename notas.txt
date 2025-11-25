@@ -20,3 +20,9 @@ $env:DATABASE_URL="postgresql://postgres:password@localhost:5432/sudoku"
 
 node server/index.js
 para rodar o backend
+
+
+
+g++ main.cpp -o build/server -std=c++17 -lws2_32
+
+.\build\server.exe

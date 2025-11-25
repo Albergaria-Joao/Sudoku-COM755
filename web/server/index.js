@@ -91,4 +91,25 @@ app.post("/get-games", async (req, res) => {
   }
 });
 
+app.post("/load-game", async (req, res) => {
+  try {
+    const { gameId } = req.body;
+
+    const game = await prisma.game.findUnique({ where: { id: gameId } });
+
+    const gamesList = game?.games;
+
+    res.json({
+      status: 200,
+      board: game?.curr_board,
+      generatedBoard: game?.gen_board,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
 app.listen(4000, () => console.log("API rodando em http://localhost:4000"));

@@ -4,14 +4,14 @@ import SudokuCell from "./SudokuCell";
 export default function SudokuBoard({
   tab,
   generatedBoard,
-  onNewValue,
   solved,
 }: {
   tab: number[][];
   generatedBoard: number[][];
-  onNewValue: (r: number, c: number, num: number) => Promise<boolean>;
   solved: boolean;
 }) {
+  const api = "http://localhost:5000";
+
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   );
@@ -48,6 +48,25 @@ export default function SudokuBoard({
       );
     }
   }, [solved]);
+
+  async function onNewValue(
+    r: number,
+    c: number,
+    num: number
+  ): Promise<boolean> {
+    const res = await fetch(`${api}/verificar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tabuleiro: board, r: r, c: c, num: num }),
+    });
+    const data = await res.json();
+    //console.log(data["valido"]);
+    if (data["valido"] == true) {
+      return true;
+    }
+
+    return false;
+  }
 
   // async function verificar() {
   //   const res = await fetch("http://localhost:5000/verificar", {
@@ -87,6 +106,7 @@ export default function SudokuBoard({
                 );
                 setFocusedCell({ row: i, col: j, val: cell });
                 setValidMatrix(newValidMatrix);
+                console.log(v);
               }}
               valid={validMatrix[i][j]}
               editable={generatedBoard[i][j] === 0}

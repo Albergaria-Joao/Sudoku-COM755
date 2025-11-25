@@ -35,11 +35,14 @@ function Game() {
 
   useEffect(() => {
     //onGenGameClick();
+    console.log(localStorage.getItem("gameOn"));
     if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
       navigate("/login");
-    } else {
+    } else if (localStorage.getItem("gameOn") === "true") {
       setBoard(state?.board || Array(9).fill(Array(9).fill(0)));
       setGeneratedBoard(state?.board || Array(9).fill(Array(9).fill(0)));
+    } else {
+      navigate("/select");
     }
   }, []); // Roda isso logo que carregar a página
 
@@ -56,25 +59,6 @@ function Game() {
     setSolved(true);
 
     console.log(time);
-  }
-
-  async function onNewValue(
-    r: number,
-    c: number,
-    num: number
-  ): Promise<boolean> {
-    const res = await fetch(`${api}/verificar`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tabuleiro: board, r: r, c: c, num: num }),
-    });
-    const data = await res.json();
-    //console.log(data["valido"]);
-    if (data["valido"] == true) {
-      return true;
-    }
-
-    return false;
   }
 
   function onUpload(file: File | null): void {
@@ -133,7 +117,6 @@ function Game() {
       <SudokuBoard
         tab={board}
         generatedBoard={generatedBoard}
-        onNewValue={onNewValue}
         solved={solved}
       ></SudokuBoard>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
