@@ -29,7 +29,7 @@ function Game() {
   const [generatedBoard, setGeneratedBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   ); // Tabuleiro gerado para ver quais são as células que não podem ser alteradas
-  const [time, setTime] = useState<number[]>([0, 0]);
+  const [time, setTime] = useState<number[]>([0, 0, 0]);
   const [solved, setSolved] = useState<boolean>(false);
 
   function loadSavedBoard() {
@@ -140,6 +140,7 @@ function Game() {
       }
     }
     setBoard(newBoard);
+    setGeneratedBoard(newBoard);
   }
 
   async function onSaveClick(): Promise<void> {

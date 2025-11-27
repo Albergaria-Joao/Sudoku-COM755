@@ -26,3 +26,10 @@ para rodar o backend
 g++ main.cpp -o build/server -std=c++17 -lws2_32
 
 .\build\server.exe
+
+
+
+
+
+Instalação do lucide-react (ícones)
+npm install lucide-react@0.435.0

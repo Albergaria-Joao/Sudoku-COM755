@@ -104,7 +104,11 @@ app.post("/get-games", async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        games: true,
+        games: {
+          orderBy: {
+            updatedAt: "desc", // string 'asc' ou 'desc'
+          },
+        },
       },
     });
 
@@ -200,6 +204,34 @@ app.post("/update-status", async (req, res) => {
 
     res.json({
       status: 200,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/get-leaderboard", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const users = await prisma.user.findMany({
+      include: {
+        games: {
+          where: {
+            status: "Resolvido",
+          },
+        },
+      },
+    });
+
+    // const gamesList = user?.games;
+
+    res.json({
+      status: 200,
+      users: users,
     });
   } catch (err) {
     console.error(err);

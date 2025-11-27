@@ -14,6 +14,9 @@ function Select() {
   const navigate = useNavigate();
 
   const [games, setGames] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<
+    { id: string; name: string; score: number }[]
+  >([]);
 
   async function getGames(): Promise<void> {
     const res = await fetch(`${backend}/get-games`, {
@@ -26,6 +29,35 @@ function Select() {
     setGames(data.games || []); // ← salva os jogos no estado
   }
 
+  async function getLeaderboard(): Promise<void> {
+    const res = await fetch(`${backend}/get-leaderboard`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: localStorage.getItem("user_id") }),
+    });
+
+    const data = await res.json();
+    let lb: { id: string; name: string; score: number }[] = [];
+    console.log(data);
+
+    for (let i = 0; i < data.users.length; i++) {
+      let score = 0;
+
+      for (let j = 0; j < data.users[i].games.length; j++) {
+        score += data.users[i].games[j].difficulty + 1;
+      }
+
+      const name = data.users[i].login;
+      const id = data.users[i].id;
+      lb.push({ id, name, score });
+    }
+    console.log(lb);
+    lb.sort((a, b) => b.score - a.score);
+    setLeaderboard(lb || []);
+
+    //setGames(data.games || []); // ← salva os jogos no estado
+  }
+
   useEffect(() => {
     //onGenGameClick();
     if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
@@ -35,7 +67,7 @@ function Select() {
       onLoadClick(localStorage.getItem("game_id") || "");
       return;
     }
-
+    getLeaderboard();
     getGames();
   }, []);
 
@@ -152,8 +184,8 @@ function Select() {
       <table>
         <thead>
           <tr>
-            <th>Criado</th>
             <th>Atualizado</th>
+            <th>Criado</th>
             <th>Dificuldade</th>
             <th>Status</th>
           </tr>
@@ -167,8 +199,8 @@ function Select() {
             // Se não for vazio, mapeia os jogos
             games.map((game) => (
               <tr key={game.id}>
-                <td>{new Date(game.createdAt).toLocaleString()}</td>
                 <td>{new Date(game.updatedAt).toLocaleString()}</td>
+                <td>{new Date(game.createdAt).toLocaleString()}</td>
                 <td>{dificuldades[game.difficulty]}</td>
                 <td>{game.status}</td>
                 <td>
@@ -182,6 +214,30 @@ function Select() {
                     <Trash />
                   </button>
                 </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      <h1>Leaderboard</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Pontuação</th>
+          </tr>
+        </thead>
+        <tbody id="lb-table">
+          {leaderboard.length === 0 ? (
+            <tr>
+              <td colSpan={3}>Nenhum usuário encontrado</td>
+            </tr>
+          ) : (
+            leaderboard.map((leader) => (
+              <tr key={leader.id}>
+                <td>{leader.name}</td>
+                <td>{leader.score}</td>
               </tr>
             ))
           )}
