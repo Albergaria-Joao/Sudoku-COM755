@@ -35,6 +35,36 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/create-user", async (req, res) => {
+  try {
+    const { login, password } = req.body;
+    if (await prisma.user.findUnique({ where: { login: login } })) {
+      return res.json({
+        status: 409,
+        mensagem: "Já existe um usuário com este login",
+      });
+    }
+
+    //console.log(board);
+    const newUser = await prisma.user.create({
+      data: {
+        login: login,
+        password: await bcrypt.hash(password, 10),
+      },
+    });
+
+    return res.json({
+      status: 200,
+      login: newUser.login,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
 app.post("/create-game", async (req, res) => {
   try {
     const { board, generatedBoard, userId, diff } = req.body;

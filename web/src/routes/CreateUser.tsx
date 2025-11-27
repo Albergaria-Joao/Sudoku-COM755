@@ -5,19 +5,18 @@ import Button from "../components/Button";
 
 import "../index.css";
 
-function Login() {
+function CreateUser() {
   const backend = "http://localhost:4000";
   const navigate = useNavigate();
 
   useEffect(() => {
-    //onGenGameClick();
     if (localStorage.getItem("user")) {
       navigate("/select");
     }
-  }, []); // Roda isso logo que carregar a página
+  }, []);
 
-  async function verifyLogin(login: string, pass: string): Promise<void> {
-    const res = await fetch(`${backend}/login`, {
+  async function createUser(login: string, pass: string): Promise<void> {
+    const res = await fetch(`${backend}/create-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ login, password: pass }),
@@ -29,14 +28,15 @@ function Login() {
       localStorage.setItem("user", login);
       localStorage.setItem("user_id", data.userId);
       console.log(localStorage.getItem("user_id"));
-      navigate("/select");
+      navigate("/cadastro");
     } else {
-      alert("Usuário ou senha incorretos!");
+      alert("Erro no cadastro. Já existe um usuário com esse login!");
     }
   }
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <form className="p-6 bg-white shadow-md rounded">
+        <h1 className="text-xl mb-3">Cadastro</h1>
         <label htmlFor="login">Usuário:</label>
         <input
           className="bg-slate-100 border border-gray-400 rounded mx-2"
@@ -58,17 +58,17 @@ function Login() {
         <Button
           onClick={(e) => {
             e.preventDefault();
-            verifyLogin(
+            createUser(
               (document.getElementById("login") as HTMLInputElement).value,
               (document.getElementById("senha") as HTMLInputElement).value
             );
           }}
         >
-          Login
+          Cadastrar
         </Button>
       </form>
     </div>
   );
 }
 
-export default Login;
+export default CreateUser;

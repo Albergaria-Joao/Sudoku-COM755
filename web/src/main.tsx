@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import Game from "./routes/Game.tsx";
 import Login from "./routes/Login.tsx";
 import Select from "./routes/Select.tsx";
+import CreateUser from "./routes/CreateUser.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Imports para usar coisas de bibliotecas
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/select",
     element: <Select />,
+  },
+  {
+    path: "/cadastro",
+    element: <CreateUser />,
   },
 ]);
 

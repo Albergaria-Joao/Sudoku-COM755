@@ -67,6 +67,7 @@ function Login() {
         >
           Login
         </Button>
+        <a href="/cadastro">Cadastrar novo usuário</a>
       </form>
     </div>
   );

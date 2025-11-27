@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import LoadButton from "../components/LoadButton";
 import { Trash, LogOut } from "lucide-react";
 
-export default function Select() {
+function Select() {
   const api = "http://localhost:5000";
   const backend = "http://localhost:4000";
   console.log(api);
@@ -190,3 +190,5 @@ export default function Select() {
     </div>
   );
 }
+
+export default Select;

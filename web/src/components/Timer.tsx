@@ -11,8 +11,8 @@ function Timer({ t }: { t: number[] }) {
 
   return (
     <div>
-      <h1 className="text-3xl">{time[0]} ms</h1>
-      <h1 className="text-3xl">{time[1]} ms</h1>
+      <h1 className="text-3xl">Preenchendo aleatoriamente: {time[0]} ms</h1>
+      <h1 className="text-3xl">Eliminando possibilidades: {time[1]} ms</h1>
     </div>
   );
 }
