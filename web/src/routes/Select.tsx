@@ -5,6 +5,7 @@ import GenButton from "../components/GenButton";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import LoadButton from "../components/LoadButton";
+import { Trash, LogOut } from "lucide-react";
 
 export default function Select() {
   const api = "http://localhost:5000";
@@ -29,6 +30,9 @@ export default function Select() {
     //onGenGameClick();
     if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
       navigate("/login");
+      return;
+    } else if (localStorage.getItem("game_on") === "true") {
+      onLoadClick(localStorage.getItem("game_id") || "");
       return;
     }
 
@@ -72,10 +76,11 @@ export default function Select() {
     localStorage.setItem("game_id", gameData.gameId);
     console.log("Game ID:", gameData.gameId);
     //localStorage.setItem("game", "comecou");
-    localStorage.setItem("gameOn", "true");
+    localStorage.setItem("game_on", "true");
+    localStorage.setItem("saved_game", JSON.stringify(data["tabuleiro"]));
     navigate("/", {
       state: {
-        board: data["tabuleiro"],
+        generatedBoard: data["tabuleiro"],
       },
     });
   }
@@ -98,22 +103,50 @@ export default function Select() {
     // Salva no localstorage, etc
     const gameData = await gameDB.json();
     localStorage.setItem("game_id", gameData.gameId);
-    localStorage.setItem("gameOn", "true");
+    localStorage.setItem("game_on", "true");
+    localStorage.setItem("saved_game", JSON.stringify(gameData["board"]));
+    localStorage.setItem(
+      "game_solved",
+      gameData.gameStatus.startsWith("Resolvido")
+    );
+
+    console.log("RESOLVIDO", localStorage.getItem("game_solved"));
     navigate("/", {
       state: {
-        board: gameData["board"],
         generatedBoard: gameData["generatedBoard"],
       },
     });
   }
 
+  async function onDeleteClick(gameId: String): Promise<void> {
+    const confirmDelete = window.confirm(
+      "Tem certeza que deseja deletar este jogo? Esta ação não pode ser desfeita."
+    );
+    if (confirmDelete === false) {
+      return;
+    }
+
+    const res = await fetch(`${backend}/delete-game`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameId: gameId,
+      }),
+    });
+    getGames();
+  }
+
+  const dificuldades = ["Fácil", "Médio", "Difícil", "Expert", "Insano"];
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <Button onClick={onLogoutClick}>Logout</Button>
+      <Button onClick={onLogoutClick}>
+        <LogOut />
+        Logout
+      </Button>
 
       <h1 className="text-2xl font-bold mb-6 text-center">
         Novo jogo: <GenButton onGenGameClick={onGenGameClick}></GenButton>
-        Selecione a Dificuldade
       </h1>
 
       <table>
@@ -136,12 +169,18 @@ export default function Select() {
               <tr key={game.id}>
                 <td>{new Date(game.createdAt).toLocaleString()}</td>
                 <td>{new Date(game.updatedAt).toLocaleString()}</td>
-                <td>{game.difficulty}</td>
+                <td>{dificuldades[game.difficulty]}</td>
                 <td>{game.status}</td>
                 <td>
-                  <LoadButton
-                    onLoadClick={() => onLoadClick(game.id)}
-                  ></LoadButton>
+                  <Button onClick={() => onLoadClick(game.id)}>Carregar</Button>
+                </td>
+                <td>
+                  <button
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 m-3"
+                    onClick={() => onDeleteClick(game.id)}
+                  >
+                    <Trash />
+                  </button>
                 </td>
               </tr>
             ))

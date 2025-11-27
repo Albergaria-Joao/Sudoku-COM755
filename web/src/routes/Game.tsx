@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import "./../App.css";
 import SudokuBoard from "../components/SudokuBoard";
-import GenButton from "../components/GenButton";
 import "./../index.css";
 import SolveButton from "../components/SolveButton";
 import Timer from "../components/Timer";
@@ -11,7 +10,6 @@ import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 type StateType = {
-  board: number[][];
   generatedBoard: number[][];
 };
 
@@ -34,21 +32,46 @@ function Game() {
   const [time, setTime] = useState<number>(0);
   const [solved, setSolved] = useState<boolean>(false);
 
+  function loadSavedBoard() {
+    const saved = localStorage.getItem("saved_game");
+    //console.log("Saved game:", saved);
+    return saved ? JSON.parse(saved) : Array(9).fill(Array(9).fill(0));
+  }
+
   useEffect(() => {
     //onGenGameClick();
-    console.log(localStorage.getItem("gameOn"));
+    console.log(localStorage.getItem("game_on"));
     if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
       navigate("/login");
-    } else if (localStorage.getItem("gameOn") === "true") {
-      setBoard(state?.board || Array(9).fill(Array(9).fill(0)));
+    } else if (localStorage.getItem("game_on") === "true") {
+      // console.log("Carregando jogo salvo...", state.board);
+      setBoard(loadSavedBoard());
       setGeneratedBoard(
         state?.generatedBoard || Array(9).fill(Array(9).fill(0))
       );
     } else {
       navigate("/select");
     }
+
+    if (localStorage.getItem("game_solved") === "true") {
+      setSolved(true);
+    }
   }, []); // Roda isso logo que carregar a página
 
+  useEffect(() => {
+    function handleBeforeUnload() {
+      // salva o jogo no localstorage antes de fechar/recarregar a aba
+      localStorage.setItem("saved_game", JSON.stringify(board));
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [board]);
+
+  console.log(generatedBoard);
   async function onSolveClick(): Promise<void> {
     const res = await fetch(`${api}/resolver`, {
       method: "POST",
@@ -60,6 +83,15 @@ function Game() {
     setTime(data["time"]);
     setBoard(data["tabuleiro"]);
     setSolved(true);
+
+    const update = fetch(`${backend}/update-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameId: localStorage.getItem("game_id"),
+        status: "Resolvido com algoritmo",
+      }),
+    });
 
     console.log(time);
   }
@@ -107,6 +139,13 @@ function Game() {
 
   async function onSaveClick(): Promise<void> {
     console.log("Salvando jogo...", localStorage.getItem("game_id"));
+    let confirmSave = window.confirm(
+      "Tem certeza que deseja voltar à seleção? O progresso atual será salvo."
+    );
+
+    if (confirmSave === false) {
+      return;
+    }
 
     const res = await fetch(`${backend}/save-game`, {
       method: "POST",
@@ -123,8 +162,37 @@ function Game() {
       return;
     }
     localStorage.setItem("game_id", "");
-    localStorage.setItem("gameOn", "false");
+    localStorage.setItem("game_on", "false");
+    localStorage.setItem("saved_game", "");
+    localStorage.setItem("game_solved", "false");
     navigate("/select");
+  }
+
+  function checkSolved(
+    validMatrix: boolean[][],
+    board: number[][],
+    i: number,
+    j: number
+  ): void {
+    if (
+      !board.flat().every((m) => m !== 0) ||
+      !validMatrix.flat().every((v) => v === true)
+    ) {
+      setSolved(false);
+      //console.log("Checou solved:", solved);
+      return;
+    }
+
+    const res = fetch(`${backend}/update-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameId: localStorage.getItem("game_id"),
+        status: "Resolvido",
+      }),
+    });
+
+    setSolved(true);
   }
 
   return (
@@ -136,6 +204,7 @@ function Game() {
         generatedBoard={generatedBoard}
         solved={solved}
         setBoardState={setBoardState}
+        checkSolved={checkSolved}
       ></SudokuBoard>
       <SolveButton onSolveClick={onSolveClick}></SolveButton>
       <Timer t={time}></Timer>

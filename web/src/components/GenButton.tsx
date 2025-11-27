@@ -1,7 +1,6 @@
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 
-
 function GenButton({ onGenGameClick }: { onGenGameClick: () => void }) {
   const navigate = useNavigate();
   return (
@@ -20,7 +19,7 @@ function GenButton({ onGenGameClick }: { onGenGameClick: () => void }) {
         <option value={2}>2</option>
         <option value={3}>3</option>
       </select>
-      <Button onClick={() => onGenGameClick()}>Gerar novo tabuleiro</Button>
+      <Button onClick={() => onGenGameClick()}>Gerar novo jogo</Button>
     </div>
   );
 }

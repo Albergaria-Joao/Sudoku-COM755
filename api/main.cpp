@@ -48,7 +48,7 @@ int main() {
     });
 
 
-    // Habilita CORS corretamente (uma vez só)
+    // Habilita CORS
     svr.set_pre_routing_handler([](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -56,10 +56,8 @@ int main() {
         return httplib::Server::HandlerResponse::Unhandled;
     });
 
-    // Responde requisições OPTIONS (preflight)
     svr.Options(R"(.*)", [](const httplib::Request& req, httplib::Response& res) {
-        res.status = 200; // OK
-        // NÃO adicionar headers aqui de novo! Já vêm do pre_routing_handler
+        res.status = 200; 
     });
 
     svr.Post("/gerar", [](const httplib::Request& req, httplib::Response& res) {
@@ -239,7 +237,7 @@ void gerarTab(Tabuleiro& tab, int dif) {
         bool apagou = false;
         while (apagou == false) {
             int r_l = rand() % 9; // Número aleatório de 0 a 8
-            int r_c = rand() % 9;// Número aleatório de 0 a 8
+            int r_c = rand() % 9;
             if (tab[r_l][r_c] != 0) {
                 tab[r_l][r_c] = 0;
                 apagou = true;
@@ -273,7 +271,7 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 
     std::shuffle(numeros.begin(), numeros.end(), rng);
     
-    if (contemPar(preenchidos, l, c)) {
+    if (contemPar(preenchidos, l, c)) { // Se a casinha atual é uma que já estava preenchida por padrão, pula para a proxiam
         //std::cout << l << " " << c << "\n";
         return resolver(tab, preenchidos, proxL, proxC);
 
@@ -295,7 +293,9 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
     return false;
 }
 
+bool swordfish(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
 
+}
 
 bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade) {
     std::vector<Tabuleiro> encontradas = {};

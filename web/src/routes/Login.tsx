@@ -37,6 +37,7 @@ function Login() {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <form className="p-6 bg-white shadow-md rounded">
+        <h1 className="text-xl mb-3">Login</h1>
         <label htmlFor="login">Usuário:</label>
         <input
           className="bg-slate-100 border border-gray-400 rounded mx-2"

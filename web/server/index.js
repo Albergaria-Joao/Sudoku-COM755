@@ -40,7 +40,7 @@ app.post("/create-game", async (req, res) => {
     const { board, generatedBoard, userId, diff } = req.body;
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    console.log(board);
+    //console.log(board);
     const game = await prisma.game.create({
       data: {
         curr_board: board,
@@ -57,6 +57,7 @@ app.post("/create-game", async (req, res) => {
       login: user.login,
       userId: user.id,
       gameId: game.id,
+      gameStatus: game?.status,
     });
   } catch (err) {
     console.error(err);
@@ -104,6 +105,25 @@ app.post("/load-game", async (req, res) => {
       gameId: game?.id,
       board: game?.curr_board,
       generatedBoard: game?.gen_board,
+      gameStatus: game?.status,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/delete-game", async (req, res) => {
+  try {
+    const { gameId } = req.body;
+
+    const game = await prisma.game.delete({ where: { id: gameId } });
+
+    res.json({
+      status: 200,
+      gameId: game?.id,
     });
   } catch (err) {
     console.error(err);
@@ -117,11 +137,34 @@ app.post("/save-game", async (req, res) => {
   try {
     const { gameId, board } = req.body;
 
-    console.log(board);
+    //console.log(board);
     const update = await prisma.game.update({
       where: { id: gameId },
       data: {
         curr_board: board,
+      },
+    });
+
+    res.json({
+      status: 200,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Erro desconhecido",
+    });
+  }
+});
+
+app.post("/update-status", async (req, res) => {
+  try {
+    const { gameId, status } = req.body;
+
+    console.log(status);
+    const update = await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        status: status,
       },
     });
 

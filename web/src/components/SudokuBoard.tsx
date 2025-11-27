@@ -6,11 +6,18 @@ export default function SudokuBoard({
   generatedBoard,
   solved,
   setBoardState,
+  checkSolved,
 }: {
   tab: number[][];
   generatedBoard: number[][];
   solved: boolean;
   setBoardState: (newBoard: number[][]) => void;
+  checkSolved: (
+    validMatrix: boolean[][],
+    board: number[][],
+    i: number,
+    j: number
+  ) => void;
 }) {
   const api = "http://localhost:5000";
 
@@ -109,13 +116,15 @@ export default function SudokuBoard({
                 );
                 setFocusedCell({ row: i, col: j, val: cell });
                 setValidMatrix(newValidMatrix);
+                checkSolved(newValidMatrix, newBoard, i, j);
                 //console.log(v);
               }}
               valid={validMatrix[i][j]}
-              editable={generatedBoard[i][j] === 0}
+              editable={generatedBoard[i][j] === 0 && !solved}
               focusedCell={focusedCell}
               onFocus={() => setFocusedCell({ row: i, col: j, val: cell })}
               onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })}
+              solved={solved}
             />
           ))
         )}

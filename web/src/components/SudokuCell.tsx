@@ -11,6 +11,7 @@ type Props = {
   focusedCell: { row: number; col: number; val: number };
   onFocus: () => void;
   onBlur: () => void;
+  solved: boolean;
 };
 
 export default function SudokuCell({
@@ -24,6 +25,7 @@ export default function SudokuCell({
   focusedCell,
   onFocus,
   onBlur,
+  solved,
 }: Props) {
   useEffect(() => {
     //onGenGameClick();
@@ -43,20 +45,23 @@ export default function SudokuCell({
 
   let bgClass = "";
 
-  if (!valid) {
-    bgClass = "bg-red-200";
-  } else if (isSameValue && isHighlighted) {
-    bgClass = "bg-yellow-200";
-  } else if (!editable && isHighlighted) {
-    bgClass = "bg-gray-400";
-  } else if (isHighlighted) {
-    bgClass = "bg-blue-200";
-  } else if (!editable) {
-    bgClass = "bg-gray-300";
+  if (solved) {
+    bgClass = "bg-green-200";
   } else {
-    bgClass = "bg-white";
+    if (!valid) {
+      bgClass = "bg-red-200";
+    } else if (isSameValue && isHighlighted) {
+      bgClass = "bg-yellow-200";
+    } else if (!editable && isHighlighted) {
+      bgClass = "bg-gray-200";
+    } else if (isHighlighted) {
+      bgClass = "bg-blue-200";
+    } else if (!editable) {
+      bgClass = "bg-gray-300";
+    } else {
+      bgClass = "bg-white";
+    }
   }
-
   return (
     <input
       type="number"
@@ -77,7 +82,7 @@ export default function SudokuCell({
         ${editable ? "cursor-pointer" : "cursor-default  font-bold disabled"}
         
         
-      w-11 h-11 text-center border border-gray-400 focus:outline-none focus:bg-blue-300
+      w-12 h-12 text-center border border-gray-400 focus:outline-none focus:bg-blue-300
       [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none
       ${i % 3 === 0 ? "border-t-4 border-t-black" : ""}
       ${j % 3 === 0 ? "border-l-4 border-l-black" : ""}
