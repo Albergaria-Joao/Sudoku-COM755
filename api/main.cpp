@@ -18,7 +18,7 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
 void gerarTab(Tabuleiro& tab, int dif);
-bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
+bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0, bool usar_possib=false);
 bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade);
 using json = nlohmann::json;
 
@@ -92,7 +92,7 @@ int main() {
             Tabuleiro tab = body["tabuleiro"];
             srand(time(0));
 
-            std::vector<std::pair<int,int>> preenchidos;
+            std::vector<std::pair<int,int>> preenchidos = {};
 
             auto start = std::chrono::steady_clock::now();
 
@@ -109,13 +109,36 @@ int main() {
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double, std::milli> duration = end - start;
 
+            double t_normal = duration.count();
+
             std::cout << "Tempo: " << duration.count() << "s\n";
+
+
+            preenchidos = {};
+
+            start = std::chrono::steady_clock::now();
+
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    if (tab[i][j] != 0) {
+                        preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
+                    }
+                }
+            }
+
+            sucesso = resolver(tab, preenchidos, 0, 0, true);
+
+            end = std::chrono::steady_clock::now();
+            duration = end - start;
+
+            double t_possib = duration.count();
+
 
             //std::cout << "resolvido";
             json resposta = {
                 {"tabuleiro", tab},
                 {"sucesso", sucesso},
-                {"time", duration.count()}
+                {"tempo", {t_normal, t_possib}}
             };
             std::cout << resposta.dump(2) << std::endl;
             std::cout << duration.count();
@@ -250,13 +273,65 @@ void gerarTab(Tabuleiro& tab, int dif) {
     }
 }
 
-bool contemPar(const std::vector<std::pair<int,int>>& v, int i, int j) {
+bool contemPar(const std::vector<std::pair<int,int>>& v, int i, int j) { // Verifica se os preenchidos contêm o par dado
     return std::any_of(v.begin(), v.end(),
         [i,j](const std::pair<int,int>& p){ return p.first == i && p.second == j; });
 }
 
 
-bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
+
+bool contem(const std::vector<int>& v, int valor) { // Verifica se o valor está no vetor
+    return std::find(v.begin(), v.end(), valor) != v.end();
+}
+
+// Para ver quais são as possibilidades, caso escolha usar esse método
+std::vector<int> possibilidades(Tabuleiro& tab, int l, int c) {
+    // Verificar se não tem igual na linha e coluna
+    std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
+
+    for (int i = 0; i < 9; i++) {
+
+        
+        if (tab[i][c] != 0 && contem(numeros, tab[i][c])) {
+            numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[i][c]), numeros.end()); // Apaga o valor das possibilidades
+        }
+        if (tab[l][i] != 0 && contem(numeros, tab[l][i])) {
+            numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[l][i]), numeros.end());
+        }
+    }
+
+    // Verificar se não tem igual nos "sub" quadradinhos 3x3
+    int pX, pY;
+    if (l < 3) {
+        pX = 1;
+    } else if (l < 6) {
+        pX = 4;
+    } else {
+        pX = 7;
+    }
+
+    if (c < 3) {
+        pY = 1;
+    } else if (c < 6) {
+        pY = 4;
+    } else {
+        pY = 7;
+    }
+    
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            if (tab[pX + i][pY + j] != 0 && contem(numeros, tab[pX + i][pY + j])) {
+                numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[pX + i][pY + j]), numeros.end());
+            }
+        }
+    }
+
+    return numeros;
+}   
+
+
+
+bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c, bool usar_possib) {
     if (l == 9) {
         return true;
     }
@@ -264,18 +339,23 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
     int proxL = (c == 8) ? l + 1 : l;
     int proxC = (c + 1) % 9;
     
-    std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
+    if (contemPar(preenchidos, l, c)) { // Se a casinha atual é uma que já estava preenchida por padrão, pula para a proxiam
+        //std::cout << l << " " << c << "\n";
+        return resolver(tab, preenchidos, proxL, proxC);
+    }
 
+    std::vector<int> numeros;
+    if (usar_possib == false) {
+        numeros = {1,2,3,4,5,6,7,8,9};
+    } else {
+        numeros = possibilidades(tab, l, c);
+    }
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine rng(seed);
 
     std::shuffle(numeros.begin(), numeros.end(), rng);
     
-    if (contemPar(preenchidos, l, c)) { // Se a casinha atual é uma que já estava preenchida por padrão, pula para a proxiam
-        //std::cout << l << " " << c << "\n";
-        return resolver(tab, preenchidos, proxL, proxC);
-
-    }
+    
     
     for (int num : numeros) {
         if (verificar(tab, l, c, num)) {
@@ -293,9 +373,9 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
     return false;
 }
 
-bool swordfish(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
+// bool swordfish(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
 
-}
+// }
 
 bool criarJogo(Tabuleiro& tab, int nSolucoes, int dificuldade) {
     std::vector<Tabuleiro> encontradas = {};

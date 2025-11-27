@@ -29,7 +29,7 @@ function Game() {
   const [generatedBoard, setGeneratedBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
   ); // Tabuleiro gerado para ver quais são as células que não podem ser alteradas
-  const [time, setTime] = useState<number>(0);
+  const [time, setTime] = useState<number[]>([0, 0]);
   const [solved, setSolved] = useState<boolean>(false);
 
   function loadSavedBoard() {
@@ -78,9 +78,14 @@ function Game() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tabuleiro: generatedBoard }),
     });
-    console.log("resolveu");
+    //console.log("resolveu");
     const data = await res.json();
-    setTime(data["time"]);
+    if (data.sucesso == false) {
+      alert("Solução não encontrada");
+      return;
+    }
+    console.log(data["tempo"]);
+    setTime(data["tempo"]);
     setBoard(data["tabuleiro"]);
     setSolved(true);
 

@@ -5,7 +5,7 @@
 #include <cstring> 
 #include <array>
 #include <vector>
-
+#include <string>
 //#include "httplib.h"
 //#include <nlohmann/json.hpp>
 
@@ -17,7 +17,7 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 bool preencher(Tabuleiro& tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro& tab, int l, int c, int num);
 void criarJogo(Tabuleiro& tab, int n_brancos);
-
+std::vector<int> possibilidades(Tabuleiro& tab, int l, int c);
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l = 0, int c = 0);
 //using json = nlohmann::json;
 
@@ -122,7 +122,7 @@ bool preencher(Tabuleiro& tab, int l, int c) {
     int proxC = (c + 1) % 9;
     
     std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
-
+    
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine rng(seed);
 
@@ -157,9 +157,6 @@ bool contemPar(const std::vector<std::pair<int,int>>& v, int i, int j) {
         [i,j](const std::pair<int,int>& p){ return p.first == i && p.second == j; });
 }
 
-
-
-
 bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l, int c) {
     if (l == 9) {
         return true;
@@ -167,13 +164,6 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
 
     int proxL = (c == 8) ? l + 1 : l;
     int proxC = (c + 1) % 9;
-    
-    std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
-
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine rng(seed);
-
-    std::shuffle(numeros.begin(), numeros.end(), rng);
     
     while (contemPar(preenchidos, l, c)) {
         //std::cout << l << " " << c << "\n";
@@ -184,6 +174,18 @@ bool resolver(Tabuleiro& tab, std::vector<std::pair<int,int>> preenchidos, int l
         proxC = (c + 1) % 9;
 
     }
+
+
+    //std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
+    std::vector<int> numeros = possibilidades(tab, l, c);
+    
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rng(seed);
+
+    std::shuffle(numeros.begin(), numeros.end(), rng);
+    
+    
     
 
     // std::cout << "\n";
@@ -215,7 +217,7 @@ bool contem(const std::vector<int>& v, int valor) {
 }
 
 
-std::vector<int> possibilidades(Tabuleiro& tab, int l, int c, int num) {
+std::vector<int> possibilidades(Tabuleiro& tab, int l, int c) {
     // Verificar se não tem igual na linha e coluna
     std::vector<int> numeros = {1,2,3,4,5,6,7,8,9};
 
@@ -250,11 +252,19 @@ std::vector<int> possibilidades(Tabuleiro& tab, int l, int c, int num) {
     
     for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {
-            if (tab[pX + i][pY + j] == num) {
-                return false;
+            if (tab[pX + i][pY + j] != 0 && contem(numeros, tab[pX + i][pY + j])) {
+                numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[pX + i][pY + j]), numeros.end());
             }
         }
     }
 
-    return true;
+    std::string s = "[";
+    for (size_t i = 0; i < numeros.size(); i++) {
+        s += std::to_string(numeros[i]);
+        if (i + 1 < numeros.size()) s += ", ";
+    }
+    s += "]";
+    std::cout << l << "," << c << " N: " << s << "\n";
+
+    return numeros;
 }   
