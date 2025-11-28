@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 function GenButton({ onGenGameClick }: { onGenGameClick: () => void }) {
   const navigate = useNavigate();
+  // Formata a parte de gerar o jogo
   return (
   <div className="bg-gray-800 p-5 rounded-lg border border-gray-700">
     <h2 className="text-xl font-semibold mb-3">Novo jogo</h2>

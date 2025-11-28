@@ -25,9 +25,6 @@ function CreateUser() {
     const data = await res.json();
 
     if (data.status === 200) {
-      localStorage.setItem("user", login);
-      localStorage.setItem("user_id", data.userId);
-      console.log(localStorage.getItem("user_id"));
       navigate("/login");
     } else {
       alert("Erro no cadastro. Já existe um usuário com esse login!");

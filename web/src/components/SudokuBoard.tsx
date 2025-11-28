@@ -25,15 +25,17 @@ export default function SudokuBoard({
     Array(9).fill(Array(9).fill(0))
   );
 
-  // Usa uma matriz de estado para atualizar cada célula separada
+  // Usa uma matriz de estado para atualizar cada célula separadamente e conseguir colorir em vermelho
   const [validMatrix, setValidMatrix] = useState<boolean[][]>(
     Array(9)
       .fill(null)
       .map(() => Array(9).fill(true))
   );
 
+  // Estado para a célula que está em foco agora
   const [focusedCell, setFocusedCell] = useState({ row: -1, col: -1, val: -1 });
 
+  // Sempre que o tabuleiro for carregado (ex: acabou de gerar):
   useEffect(() => {
     if (!tab) return;
     if (tab === generatedBoard) {
@@ -49,7 +51,7 @@ export default function SudokuBoard({
 
   useEffect(() => {
     if (solved) {
-      // Se o tabuleiro foi resolvido, todas as células são válidas
+      // Se o tabuleiro foi resolvido, todas as células são válidas (para colorir em verde)
       setValidMatrix(
         Array(9)
           .fill(null)
@@ -58,6 +60,7 @@ export default function SudokuBoard({
     }
   }, [solved]);
 
+  // Cada novo valor será verificado com o C++
   async function onNewValue(
     r: number,
     c: number,
@@ -77,51 +80,42 @@ export default function SudokuBoard({
     return false;
   }
 
-  // async function verificar() {
-  //   const res = await fetch("http://localhost:5000/verificar", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ tabuleiro: board }),
-  //   });
-  //   const data = await res.json();
-  //   alert(data.valido ? "✅ Sudoku válido!" : "❌ Sudoku inválido!");
-  // }
 
   return (
     <div className="flex flex-col items-center">
       <div className="p-2 bg-black/20 rounded-lg shadow-xl">
         <div className="grid grid-cols-9">
-          {board.map((row, i) =>
-            row.map((cell, j) => (
+          {board.map((row, i) => // Usa map nas rows e colunas (é como se fosse for dentro de for)
+            row.map((cell, j) => ( // Em cada célula, terá esse componente SudokuCell com os seguintes props
               <SudokuCell
                 key={`${i}-${j}`}
-                value={cell}
+                value={cell} // Valor da célula
                 i={i}
                 j={j}
-                valid={validMatrix[i][j]}
-                editable={generatedBoard[i][j] === 0 && !solved}
-                focusedCell={focusedCell}
+                valid={validMatrix[i][j]} // Se está valido
+                editable={generatedBoard[i][j] === 0 && !solved} // Se é editável (isto é, não estava preenchido no tabuleiro original e não está resolvido)
+                focusedCell={focusedCell} // A célula que está focada no momento (para saber se deve ficar em destaque se estiver na mesma linha, por ex)
                 solved={solved}
-                onFocus={() => setFocusedCell({ row: i, col: j, val: cell })}
-                onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })}
+                onFocus={() => setFocusedCell({ row: i, col: j, val: cell })} // Caso seja focada, muda o valor da focusedCell para ela mesma
+                onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })} // Se perder o foco, remove
                 onChange={async (val) => {
                   const newBoard = board.map((r, ri) =>
                     ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r
                   );
-
+                  // Quando mudar, vai setar esse tabuleiro alterado como estado aqui e no componente pai para aparecer na interface
                   setBoard(newBoard);
                   setBoardState(newBoard);
 
-                  const v = await onNewValue(i, j, val);
+                  const v = await onNewValue(i, j, val); // Vai verificar o valor
 
-                  const newValidMatrix = validMatrix.map((r, ri) =>
+                  const newValidMatrix = validMatrix.map((r, ri) => // Atualiza a matriz de válidos nessa célula para o resultado da validação
                     ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r
                   );
 
-                  setFocusedCell({ row: i, col: j, val: cell });
-                  setValidMatrix(newValidMatrix);
+                  setFocusedCell({ row: i, col: j, val: cell }); // Coloca ela como focada 
+                  setValidMatrix(newValidMatrix); // atualiza o estado da matriz de válidos
 
-                  checkSolved(newValidMatrix, newBoard, i, j);
+                  checkSolved(newValidMatrix, newBoard, i, j); // Checa se esse input já não resolveu o jogo
                 }}
               />
             ))

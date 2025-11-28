@@ -64,7 +64,7 @@ return (
     type="number"
     min="1"
     max="9"
-    value={value || ""}
+    value={value > 0 && value < 10 ? value : ""}
     disabled={!editable}
     onChange={(e) => onChange(Number(e.target.value) || 0)}
     onFocus={onFocus}

@@ -178,7 +178,7 @@ int main()
                 {"sucesso", sucesso},
                 {"tempo", {t_normal, t_possib, t_xwing}}
             };
-            std::cout << resposta.dump(2) << std::endl;
+            // std::cout << resposta.dump(2) << std::endl;
             std::cout << duration.count();
             res.set_content(resposta.dump(), "application/json");
         } catch (...) {
@@ -478,6 +478,8 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
         Tabuleiro completo = {};
         preencher(completo);
 
+        Tabuleiro preenchido = completo;
+
         Tabuleiro puzzle = completo;
         gerarTab(puzzle, dificuldade);
 
@@ -526,7 +528,14 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
         if (contador == nSolucoes)
         {
             tab = puzzle;
-
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    std::cout << preenchido[i][j] << " ";
+                }
+                std::cout << "\n";
+            }
             return true;
         }
 
@@ -538,8 +547,7 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
     return false;
 }
 
-// Para fazer o X-Wing, usei IA pra ir descrevendo o algoritmo mesmo, por conta do tempo.
-// Mas é mais para ter esse experimento
+// X-wing
 
 // Ele procura duas linhas onde um valor só pode ir nas mesmas duas colunas
 // Ou seja, forma um retângulo com esse valor possível

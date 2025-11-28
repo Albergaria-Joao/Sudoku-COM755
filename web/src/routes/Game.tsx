@@ -9,7 +9,7 @@ import Button from "../components/Button";
 
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, ArrowLeftToLineIcon } from "lucide-react";
 type StateType = {
   generatedBoard: number[][];
 };
@@ -23,6 +23,8 @@ function Game() {
 
   const location = useLocation();
   const state = location.state as StateType;
+  
+  // Estados para o tabuleiro atual e o tabuleiro inicial (gerado)
 
   const [board, setBoard] = useState<number[][]>(
     Array(9).fill(Array(9).fill(0))
@@ -33,6 +35,7 @@ function Game() {
   const [time, setTime] = useState<number[]>([0, 0, 0]);
   const [solved, setSolved] = useState<boolean>(false);
 
+  // Função para carregar o tabuleiro salvo localmente (ex: a página foi recarregada/fechada)
   function loadSavedBoard() {
     const saved = localStorage.getItem("saved_game");
     //console.log("Saved game:", saved);
@@ -42,9 +45,9 @@ function Game() {
   useEffect(() => {
     //onGenGameClick();
     console.log(localStorage.getItem("game_on"));
-    if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
+    if (!localStorage.getItem("user") || localStorage.getItem("user") === "") { // Se não estiver logado
       navigate("/login");
-    } else if (localStorage.getItem("game_on") === "true") {
+    } else if (localStorage.getItem("game_on") === "true") { // Se estiver com jogo em curso, ele carrega o tabuleiro
       // console.log("Carregando jogo salvo...", state.board);
       setBoard(loadSavedBoard());
       setGeneratedBoard(
@@ -54,7 +57,7 @@ function Game() {
       navigate("/");
     }
     console.log(localStorage.getItem("game_diff"));
-    if (localStorage.getItem("game_solved") === "true") {
+    if (localStorage.getItem("game_solved") === "true") { // Se o jogo estiver resolvido, já atualiza o estado dele ==> vai desabilitar o tabuleiro e deixar verde
       setSolved(true);
     }
   }, []); // Roda isso logo que carregar a página
@@ -73,24 +76,25 @@ function Game() {
   }, [board]);
 
   console.log(generatedBoard);
-  async function onSolveClick(): Promise<void> {
+  async function onSolveClick(): Promise<void> { // Resolver por algoritmo
     const res = await fetch(`${api}/resolver`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tabuleiro: generatedBoard }),
-    });
+    }); // Manda o C++ resolver
     //console.log("resolveu");
     const data = await res.json();
     if (data.sucesso == false) {
       alert("Solução não encontrada");
       return;
     }
+    // Seta os valores recebidos na response
     console.log(data["tempo"]);
     setTime(data["tempo"]);
     setBoard(data["tabuleiro"]);
     setSolved(true);
     
-
+    // Atualiza o status do jogo no banco de dados
     fetch(`${backend}/update-status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -103,58 +107,22 @@ function Game() {
     console.log(time);
   }
 
-  function onUpload(file: File | null): void {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const csvText = e.target?.result;
-        if (csvText === undefined || csvText === null) {
-          console.error("Erro ao ler o arquivo: resultado indefinido."); // Se não tiver esse check, dá erro
-          return;
-        }
-        parseCSV(csvText);
-      };
-      reader.readAsText(file);
-    }
-  }
-
+  // Para setar o estado do tabuleiro nesse componente pai, a partir do filho SudokuBoard
   function setBoardState(newBoard: number[][]) {
     setBoard(newBoard);
   }
 
-  function parseCSV(csvText: string | ArrayBuffer | null) {
-    if (typeof csvText !== "string") {
-      console.error("Não é string");
-      return;
-    }
-    const rows = csvText.split("\n");
-    const newBoard: number[][] = [];
-    for (let i = 0; i < 9; i++) {
-      const row = rows[i].split(",").map(Number);
-      if (
-        row.length === 9 &&
-        row.every((num) => !isNaN(num) && num >= 0 && num <= 9)
-      ) {
-        newBoard.push(row);
-      } else {
-        console.error(`Erro no csv: ${rows[i]}`);
-        return;
-      }
-    }
-    setBoard(newBoard);
-    setGeneratedBoard(newBoard);
-  }
-
+  // Método para salvar o jogo quando clicar no botão de voltar
   async function onSaveClick(): Promise<void> {
     console.log("Salvando jogo...", localStorage.getItem("game_id"));
     let confirmSave = window.confirm(
       "Tem certeza que deseja voltar à seleção? O progresso atual será salvo."
     );
-
+    
     if (confirmSave === false) {
       return;
     }
-
+    // Salva o tabuleiro atual do jogo correspondente no banco de dados
     const res = await fetch(`${backend}/save-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -177,6 +145,7 @@ function Game() {
     navigate("/");
   }
 
+  // Checa se o último input resolveu o jogo 
   function checkSolved(
     validMatrix: boolean[][],
     board: number[][],
@@ -192,8 +161,7 @@ function Game() {
       return;
     }
 
-    // @Permitir CSV
-    //const gameStatus = "Resolvido";
+    // Se tiver sido um jogo gerado a partir de arquivo CSV, dá um status diferente para não contabilizar na leaderboard
     let gameStatus;
     if (localStorage.getItem("game_diff") == "6") {
       gameStatus = "Resolvido (CSV)";
@@ -214,9 +182,10 @@ function Game() {
     setSolved(true);
   }
 
+  // Exportar o tabuleiro como CSV
   function exportCSV(board: number[][]) {
     const csvContent = board
-      .map(row => row.join(","))  // transforma cada linha em "1,0,3,4,..."
+      .map(row => row.join(","))  // transforma cada linha em valores separados por vírgula
       .join("\n");                // quebra de linha entre cada linha
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -236,7 +205,10 @@ function Game() {
 
     {/* Botão no canto superior esquerdo */}
     <div className="absolute top-4 left-4">
-      <Button onClick={onSaveClick}>Voltar</Button>
+      <Button onClick={onSaveClick} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 
+                 transition-all rounded-lg font-semibold shadow-md inline-flex">
+                  <ArrowLeftToLineIcon className="mr-2"/>Voltar
+      </Button>
     </div>
 
     <div className="max-w-6xl mx-auto mt-16">
@@ -249,7 +221,7 @@ function Game() {
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* TABULEIRO À ESQUERDA OCUPANDO 2 COLUNAS */}
+        {/* TABULEIRO */}
         <div className="md:col-span-2 bg-gray-800 rounded-xl shadow-xl p-6 flex justify-center">
           <SudokuBoard
             tab={board}
@@ -260,10 +232,9 @@ function Game() {
           />
         </div>
 
-        {/* COLUNA DA DIREITA → Solver + Timer */}
         <div className="flex flex-col gap-6">
 
-          {/* Botão Resolver */}
+          {/* Botão Exportar */}
           <div className="bg-gray-800 rounded-xl shadow-lg p-6 flex justify-center">
             <button
               onClick={() => exportCSV(generatedBoard)}
