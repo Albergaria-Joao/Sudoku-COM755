@@ -12,7 +12,7 @@ function Login() {
   useEffect(() => {
     //onGenGameClick();
     if (localStorage.getItem("user")) {
-      navigate("/select");
+      navigate("/");
     }
   }, []); // Roda isso logo que carregar a página
 
@@ -29,48 +29,68 @@ function Login() {
       localStorage.setItem("user", login);
       localStorage.setItem("user_id", data.userId);
       console.log(localStorage.getItem("user_id"));
-      navigate("/select");
+      navigate("/");
     } else {
       alert("Usuário ou senha incorretos!");
     }
   }
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <form className="p-6 bg-white shadow-md rounded">
-        <h1 className="text-xl mb-3">Login</h1>
-        <label htmlFor="login">Usuário:</label>
+  <div className="flex flex-col items-center justify-center h-screen bg-zinc-900 text-white">
+    
+    {/* Título */}
+    <h1 className="text-5xl font-extrabold mb-10 tracking-widest drop-shadow-lg">
+      SUDOKU
+    </h1>
+
+    <form className="w-80 p-6 bg-zinc-800 shadow-xl shadow-black/40 rounded-2xl flex flex-col gap-5 border border-zinc-700">
+      <h1>Login</h1>
+      <div className="flex flex-col">
+        <label htmlFor="login" className="text-sm font-medium text-zinc-300">
+          Usuário
+        </label>
         <input
-          className="bg-slate-100 border border-gray-400 rounded mx-2"
+          className="mt-1 px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
           type="text"
           id="login"
           name="login"
         />
-        <br />
-        <br />
-        <label htmlFor="password">Senha:</label>
+      </div>
+
+      <div className="flex flex-col">
+        <label htmlFor="senha" className="text-sm font-medium text-zinc-300">
+          Senha
+        </label>
         <input
-          className="bg-slate-100 border border-gray-400 rounded mx-2"
+          className="mt-1 px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
           type="password"
           id="senha"
           name="senha"
         />
-        <br />
-        <br />
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            verifyLogin(
-              (document.getElementById("login") as HTMLInputElement).value,
-              (document.getElementById("senha") as HTMLInputElement).value
-            );
-          }}
-        >
-          Login
-        </Button>
-        <a href="/cadastro">Cadastrar novo usuário</a>
-      </form>
-    </div>
-  );
+      </div>
+
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          verifyLogin(
+            (document.getElementById("login") as HTMLInputElement).value,
+            (document.getElementById("senha") as HTMLInputElement).value
+          );
+        }}
+      >
+        Login
+      </Button>
+
+      <a
+        href="/cadastro"
+        className="text-sm text-center text-blue-300 hover:underline"
+      >
+        Cadastrar novo usuário
+      </a>
+    </form>
+  </div>
+);
+
+
 }
 
 export default Login;

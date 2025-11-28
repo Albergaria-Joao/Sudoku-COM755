@@ -4,7 +4,7 @@ import SudokuBoard from "../components/SudokuBoard";
 import "./../index.css";
 import SolveButton from "../components/SolveButton";
 import Timer from "../components/Timer";
-import UploadBoard from "../components/UploadBoard";
+
 import Button from "../components/Button";
 
 import { useNavigate } from "react-router-dom";
@@ -50,9 +50,9 @@ function Game() {
         state?.generatedBoard || Array(9).fill(Array(9).fill(0))
       );
     } else {
-      navigate("/select");
+      navigate("/");
     }
-
+    console.log(localStorage.getItem("game_diff"));
     if (localStorage.getItem("game_solved") === "true") {
       setSolved(true);
     }
@@ -88,8 +88,9 @@ function Game() {
     setTime(data["tempo"]);
     setBoard(data["tabuleiro"]);
     setSolved(true);
+    
 
-    const update = fetch(`${backend}/update-status`, {
+    fetch(`${backend}/update-status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -168,10 +169,11 @@ function Game() {
       return;
     }
     localStorage.setItem("game_id", "");
+    localStorage.setItem("game_diff", "");
     localStorage.setItem("game_on", "false");
     localStorage.setItem("saved_game", "");
     localStorage.setItem("game_solved", "false");
-    navigate("/select");
+    navigate("/");
   }
 
   function checkSolved(
@@ -189,12 +191,22 @@ function Game() {
       return;
     }
 
-    const res = fetch(`${backend}/update-status`, {
+    // @Permitir CSV
+    //const gameStatus = "Resolvido";
+    let gameStatus;
+    if (localStorage.getItem("game_diff") == "6") {
+      gameStatus = "Resolvido (CSV)";
+    } else {
+      console.log("não pegou dif")
+      gameStatus = "Resolvido";
+    }
+
+    fetch(`${backend}/update-status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         gameId: localStorage.getItem("game_id"),
-        status: "Resolvido",
+        status: gameStatus,
       }),
     });
 
@@ -202,21 +214,54 @@ function Game() {
   }
 
   return (
-    <div>
-      <h1>Bem-vindo, {localStorage.getItem("usuario")}</h1>
-      <Button onClick={onSaveClick}>Voltar à seleção</Button>
-      <SudokuBoard
-        tab={board}
-        generatedBoard={generatedBoard}
-        solved={solved}
-        setBoardState={setBoardState}
-        checkSolved={checkSolved}
-      ></SudokuBoard>
-      <SolveButton onSolveClick={onSolveClick}></SolveButton>
-      <Timer t={time}></Timer>
-      <UploadBoard onUpload={onUpload}></UploadBoard>
+  <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
+
+    {/* Botão no canto superior esquerdo */}
+    <div className="absolute top-4 left-4">
+      <Button onClick={onSaveClick}>Voltar</Button>
     </div>
-  );
+
+    <div className="max-w-6xl mx-auto mt-16">
+
+      {/* Título centralizado */}
+      <h1 className="text-4xl font-bold mb-8 text-center">
+        Sudoku
+      </h1>
+
+      {/* GRID PRINCIPAL */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* TABULEIRO À ESQUERDA OCUPANDO 2 COLUNAS */}
+        <div className="md:col-span-2 bg-gray-800 rounded-xl shadow-xl p-6 flex justify-center">
+          <SudokuBoard
+            tab={board}
+            generatedBoard={generatedBoard}
+            solved={solved}
+            setBoardState={setBoardState}
+            checkSolved={checkSolved}
+          />
+        </div>
+
+        {/* COLUNA DA DIREITA → Solver + Timer */}
+        <div className="flex flex-col gap-6">
+
+          {/* Botão Resolver */}
+          <div className="bg-gray-800 rounded-xl shadow-lg p-6 flex justify-center">
+            <SolveButton onSolveClick={onSolveClick} />
+          </div>
+
+          {/* Timer */}
+          <div className="bg-gray-800 rounded-xl shadow-lg p-6">
+            <Timer t={time} />
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+);
+
 }
 
 export default Game;

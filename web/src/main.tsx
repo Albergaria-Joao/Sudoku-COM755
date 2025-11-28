@@ -13,15 +13,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Game />, // O que será renderizado na página inicial
+    element: <Select />, // O que será renderizado na página inicial
   },
   {
     path: "/login",
     element: <Login />,
   },
   {
-    path: "/select",
-    element: <Select />,
+    path: "/game",
+    element: <Game />,
   },
   {
     path: "/cadastro",

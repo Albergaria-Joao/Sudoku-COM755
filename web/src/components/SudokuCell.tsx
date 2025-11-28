@@ -45,52 +45,93 @@ export default function SudokuCell({
 
   let bgClass = "";
 
-  if (solved) {
-    bgClass = "bg-green-200";
-  } else {
-    if (!valid) {
-      bgClass = "bg-red-200";
-    } else if (isSameValue && isHighlighted) {
-      bgClass = "bg-yellow-200";
-    } else if (!editable && isHighlighted) {
-      bgClass = "bg-gray-200";
-    } else if (isHighlighted) {
-      bgClass = "bg-blue-200";
-    } else if (!editable) {
-      bgClass = "bg-gray-300";
-    } else {
-      bgClass = "bg-white";
-    }
-  }
-  return (
-    <input
-      type="number"
-      min="1"
-      max="9"
-      value={value || ""}
-      disabled={!editable}
-      onChange={(e) => onChange(Number(e.target.value) || 0)}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      className={`
-        ${
-          valid
-            ? "text-black"
-            : "text-red-500 focus:ring-red-500 bg-red-200 focus:bg-red-200"
-        } 
-        ${bgClass}
-        ${editable ? "cursor-pointer" : "cursor-default  font-bold disabled"}
-        
-        
-      w-12 h-12 text-center border border-gray-400 focus:outline-none focus:bg-blue-300
-      [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none
-      ${i % 3 === 0 ? "border-t-4 border-t-black" : ""}
-      ${j % 3 === 0 ? "border-l-4 border-l-black" : ""}
-      ${i === 8 ? "border-b-4 border-b-black" : ""}
-      ${j === 8 ? "border-r-4 border-r-black" : ""}
-`}
-    />
-  );
+return (
+  <input
+    type="number"
+    min="1"
+    max="9"
+    value={value || ""}
+    disabled={!editable}
+    onChange={(e) => onChange(Number(e.target.value) || 0)}
+    onFocus={onFocus}
+    onBlur={onBlur}
+    className={`
+      ${
+        valid
+          ? "text-white"
+          : "text-red-400 bg-red-900/40 border-red-500 focus:bg-red-900/40"
+      }
+
+      ${bgClass}
+
+      ${
+        solved
+          ? "bg-green-600"
+          : ""
+      }
+
+      ${
+        isSameValue && isHighlighted
+          ? "bg-yellow-500" : ""
+      }
+      ${
+        !editable
+          ? "bg-neutral-700 text-gray-200 font-extrabold shadow-inner shadow-black/60"
+          : ""
+      }
+    
+      ${
+        focusedCell.row === i && focusedCell.col === j
+          ? "bg-blue-600 !text-white scale-[1.1] shadow-lg shadow-blue-500/30 relative z-10"
+          : ""
+      }
+
+      ${
+        focusedCell.row === i && !(focusedCell.col === j)
+          ? "bg-blue-900/40"
+          : ""
+      }
+      ${
+        focusedCell.col === j && !(focusedCell.row === i)
+          ? "bg-blue-900/40"
+          : ""
+      }
+
+      ${
+        Math.floor(focusedCell.row / 3) === Math.floor(i / 3) &&
+        Math.floor(focusedCell.col / 3) === Math.floor(j / 3) &&
+        !(focusedCell.row === i && focusedCell.col === j)
+          ? "bg-blue-900/20"
+          : ""
+      }
+
+      /* --- Aparência geral (dark mode) --- */
+      w-12 h-12 
+      text-center
+      border border-neutral-700
+      bg-neutral-900
+      focus:outline-none
+      text-lg
+      rounded-sm
+      transition-all duration-100
+
+      [-moz-appearance:_textfield]
+      [&::-webkit-inner-spin-button]:appearance-none 
+      [&::-webkit-outer-spin-button]:appearance-none
+
+      ${editable ? "cursor-pointer" : "cursor-default"}
+
+      /* --- BORDAS DO BLOCO 3x3 --- */
+      ${i % 3 === 0 ? "border-t-4 border-t-neutral-400" : ""}
+      ${j % 3 === 0 ? "border-l-4 border-l-neutral-400" : ""}
+      ${i === 8 ? "border-b-4 border-b-neutral-400" : ""}
+      ${j === 8 ? "border-r-4 border-r-neutral-400" : ""}
+    `}
+  />
+);
+
+
+
 }
 
 // focus:ring-2 focus:ring-blue-500

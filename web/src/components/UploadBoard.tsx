@@ -22,12 +22,23 @@ function UploadBoard({ onUpload }: UploadBoardProps) {
   };
 
   return (
-    <div>
-      <h2>Enviar arquivo</h2>
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Enviar</button>
-    </div>
-  );
+  <div className="bg-gray-800 p-4 rounded-lg mt-6 border border-gray-700">
+    <h2 className="text-lg font-semibold mb-2">Ou, enviar jogo em arquivo CSV</h2>
+    <input
+      type="file"
+      accept=".csv"
+      onChange={handleFileChange}
+      className="block mb-3"
+    />
+    <button
+      onClick={handleUpload}
+      className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+    >
+      Enviar
+    </button>
+  </div>
+);
+
 }
 
 export default UploadBoard;

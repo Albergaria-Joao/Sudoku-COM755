@@ -3,7 +3,8 @@ function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   // props.children é o que será passado dentro do componente (nesse caso, o ícone ou o texto)
   return (
     <button
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 m-3"
+      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 
+                 transition-all rounded-lg font-semibold shadow-md text-white"
       {...props}
     >
       {props.children}

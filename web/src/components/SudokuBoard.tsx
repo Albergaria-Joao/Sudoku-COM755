@@ -88,47 +88,47 @@ export default function SudokuBoard({
   // }
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="grid grid-cols-9 gap-0.1">
-        {board.map((row, i) =>
-          row.map((cell, j) => (
-            <SudokuCell
-              key={`${i}-${j}`}
-              value={cell}
-              //disabled={false}
-              i={i}
-              j={j}
-              onChange={async (val) => {
-                // Função usada para atualizar o valor da variável tabuleiro (para cada célula, verifica se houvee uma mudança)
-                const newBoard = board.map(
-                  (
-                    r,
-                    ri // ri = row index
-                  ) => (ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r) // Se a célula pela qual está passando é a atual, atualiza seu valor no tabuleiro
-                );
-                setBoard(newBoard);
-                setBoardState(newBoard);
+    <div className="flex flex-col items-center">
+      <div className="p-2 bg-black/20 rounded-lg shadow-xl">
+        <div className="grid grid-cols-9">
+          {board.map((row, i) =>
+            row.map((cell, j) => (
+              <SudokuCell
+                key={`${i}-${j}`}
+                value={cell}
+                i={i}
+                j={j}
+                valid={validMatrix[i][j]}
+                editable={generatedBoard[i][j] === 0 && !solved}
+                focusedCell={focusedCell}
+                solved={solved}
+                onFocus={() => setFocusedCell({ row: i, col: j, val: cell })}
+                onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })}
+                onChange={async (val) => {
+                  const newBoard = board.map((r, ri) =>
+                    ri === i ? r.map((c, ci) => (ci === j ? val : c)) : r
+                  );
 
-                const v = await onNewValue(i, j, val);
-                // Atualiza apenas a célula que foi modificada
-                const newValidMatrix = validMatrix.map((r, ri) =>
-                  ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r
-                );
-                setFocusedCell({ row: i, col: j, val: cell });
-                setValidMatrix(newValidMatrix);
-                checkSolved(newValidMatrix, newBoard, i, j);
-                //console.log(v);
-              }}
-              valid={validMatrix[i][j]}
-              editable={generatedBoard[i][j] === 0 && !solved}
-              focusedCell={focusedCell}
-              onFocus={() => setFocusedCell({ row: i, col: j, val: cell })}
-              onBlur={() => setFocusedCell({ row: -1, col: -1, val: -1 })}
-              solved={solved}
-            />
-          ))
-        )}
+                  setBoard(newBoard);
+                  setBoardState(newBoard);
+
+                  const v = await onNewValue(i, j, val);
+
+                  const newValidMatrix = validMatrix.map((r, ri) =>
+                    ri === i ? r.map((c, ci) => (ci === j ? v : c)) : r
+                  );
+
+                  setFocusedCell({ row: i, col: j, val: cell });
+                  setValidMatrix(newValidMatrix);
+
+                  checkSolved(newValidMatrix, newBoard, i, j);
+                }}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
+
 }
