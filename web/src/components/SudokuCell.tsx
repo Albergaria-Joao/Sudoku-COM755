@@ -56,6 +56,7 @@ return (
     onFocus={onFocus}
     onBlur={onBlur}
     className={`
+      text-3xl
       ${
         valid
           ? "text-white"
@@ -106,7 +107,7 @@ return (
       }
 
       /* --- Aparência geral (dark mode) --- */
-      w-12 h-12 
+      w-14 h-14 
       text-center
       border border-neutral-700
       bg-neutral-900

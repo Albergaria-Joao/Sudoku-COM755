@@ -9,6 +9,7 @@ import Button from "../components/Button";
 
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { DownloadIcon } from "lucide-react";
 type StateType = {
   generatedBoard: number[][];
 };
@@ -213,6 +214,23 @@ function Game() {
     setSolved(true);
   }
 
+  function exportCSV(board: number[][]) {
+    const csvContent = board
+      .map(row => row.join(","))  // transforma cada linha em "1,0,3,4,..."
+      .join("\n");                // quebra de linha entre cada linha
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "tabuleiro.csv";  // nome do arquivo
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+
   return (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
 
@@ -224,9 +242,9 @@ function Game() {
     <div className="max-w-6xl mx-auto mt-16">
 
       {/* Título centralizado */}
-      <h1 className="text-4xl font-bold mb-8 text-center">
+      {/* <h1 className="text-4xl font-bold mb-8 text-center">
         Sudoku
-      </h1>
+      </h1> */}
 
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -244,6 +262,17 @@ function Game() {
 
         {/* COLUNA DA DIREITA → Solver + Timer */}
         <div className="flex flex-col gap-6">
+
+          {/* Botão Resolver */}
+          <div className="bg-gray-800 rounded-xl shadow-lg p-6 flex justify-center">
+            <button
+              onClick={() => exportCSV(generatedBoard)}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow inline-flex"
+              >
+              <DownloadIcon className="mr-2"/> Baixar em CSV
+            </button>
+          </div>
+
 
           {/* Botão Resolver */}
           <div className="bg-gray-800 rounded-xl shadow-lg p-6 flex justify-center">
