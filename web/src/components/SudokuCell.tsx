@@ -43,7 +43,7 @@ export default function SudokuCell({
         Math.floor(focusedCell.col / 3) === Math.floor(j / 3))); // mesmo bloco 3x3
   const isSameValue = focusedCell.val > 0 && focusedCell.val === value;
 
-  let bgClass = "";
+  //let bgClass = "";
 
 return (
   <input
@@ -56,61 +56,59 @@ return (
     onFocus={onFocus}
     onBlur={onBlur}
     className={`
-      text-3xl
+      /* --- Se inválido --- */
       ${
         valid
           ? "text-white"
           : "text-red-400 bg-red-900/40 border-red-500 focus:bg-red-900/40"
       }
 
-      ${bgClass}
+      /* --- SUA lógica tem prioridade absoluta agora --- */
+      ${solved ? "bg-green-600" : ""}
 
-      ${
-        solved
-          ? "bg-green-600"
-          : ""
-      }
-
-      ${
-        isSameValue && isHighlighted
-          ? "bg-yellow-500" : ""
-      }
-      ${
-        !editable
-          ? "bg-neutral-700 text-gray-200 font-extrabold shadow-inner shadow-black/60"
-          : ""
-      }
-    
-      ${
-        focusedCell.row === i && focusedCell.col === j
-          ? "bg-blue-600 !text-white scale-[1.1] shadow-lg shadow-blue-500/30 relative z-10"
-          : ""
+      /* Só aplica destaque se NÃO tiver bgClass (ex: verde do solved) */
+      ${!solved &&
+        focusedCell.row === i &&
+        focusedCell.col === j
+        ? "bg-blue-600 text-white scale-[1.06] shadow-lg shadow-blue-500/40 relative z-10"
+        : ""
       }
 
-      ${
-        focusedCell.row === i && !(focusedCell.col === j)
-          ? "bg-blue-900/40"
-          : ""
-      }
-      ${
-        focusedCell.col === j && !(focusedCell.row === i)
-          ? "bg-blue-900/40"
-          : ""
+      ${!solved &&
+        focusedCell.row === i &&
+        !(focusedCell.col === j)
+        ? "bg-blue-900/40"
+        : ""
       }
 
-      ${
+      ${!solved &&
+        focusedCell.col === j &&
+        !(focusedCell.row === i)
+        ? "bg-blue-900/40"
+        : ""
+      }
+
+      ${!solved &&
         Math.floor(focusedCell.row / 3) === Math.floor(i / 3) &&
         Math.floor(focusedCell.col / 3) === Math.floor(j / 3) &&
         !(focusedCell.row === i && focusedCell.col === j)
-          ? "bg-blue-900/20"
+        ? "bg-blue-900/20"
+        : ""
+      }
+
+      /* --- Células fixas mais fortes --- */
+      ${
+        !editable && !solved
+          ? "bg-neutral-700 text-gray-200 font-extrabold shadow-inner shadow-black/60"
           : ""
       }
 
-      /* --- Aparência geral (dark mode) --- */
-      w-14 h-14 
+      /* --- Dark mode base --- */
+      ${!solved ? "bg-neutral-900" : ""}
+
+      w-12 h-12 
       text-center
       border border-neutral-700
-      bg-neutral-900
       focus:outline-none
       text-lg
       rounded-sm
@@ -122,7 +120,7 @@ return (
 
       ${editable ? "cursor-pointer" : "cursor-default"}
 
-      /* --- BORDAS DO BLOCO 3x3 --- */
+      /* --- BORDAS GROSSAS DO BLOCO 3x3 --- */
       ${i % 3 === 0 ? "border-t-4 border-t-neutral-400" : ""}
       ${j % 3 === 0 ? "border-l-4 border-l-neutral-400" : ""}
       ${i === 8 ? "border-b-4 border-b-neutral-400" : ""}
@@ -130,6 +128,7 @@ return (
     `}
   />
 );
+
 
 
 

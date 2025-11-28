@@ -18,9 +18,10 @@ using Tabuleiro = std::array<std::array<int, 9>, 9>;
 bool preencher(Tabuleiro &tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro &tab, int l, int c, int num);
 void gerarTab(Tabuleiro &tab, int dif);
-bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int l = 0, int c = 0, int tecnica = 0);
+bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int l = 0, int c = 0, int tecnica = 0, std::array<std::array<std::vector<int>, 9>, 9> poss = {});
 bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade);
-bool xwing(Tabuleiro &tab);
+bool xwing(Tabuleiro &tab, std::array<std::array<std::vector<int>, 9>, 9> poss);
+std::vector<int> possibilidades(Tabuleiro &tab, int l, int c);
 using json = nlohmann::json;
 
 bool stop = false;
@@ -150,8 +151,21 @@ int main()
                     }
                 }
             }
+
+            // Mapeia possibilidades
+            std::array<std::array<std::vector<int>, 9>, 9> poss;
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (tab[i][j] == 0)
+                        poss[i][j] = possibilidades(tab, i, j);
+                    else
+                        poss[i][j] = {};
+                }
+            }
             
-            sucesso = resolver(backup, preenchidos, 0, 0, 2);
+            sucesso = resolver(backup, preenchidos, 0, 0, 2, poss);
 
             end = std::chrono::steady_clock::now();
             duration = end - start;
@@ -392,7 +406,7 @@ std::vector<int> possibilidades(Tabuleiro &tab, int l, int c)
     return numeros;
 }
 
-bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int l, int c, int tecnica)
+bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int l, int c, int tecnica, std::array<std::array<std::vector<int>, 9>, 9> poss)
 {
     if (l == 9)
     {
@@ -418,11 +432,11 @@ bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int 
         numeros = possibilidades(tab, l, c);
         break;
     case 2:
-        while (xwing(tab))
+        while (xwing(tab, poss))
         {
         }
 
-        numeros = possibilidades(tab, l, c);
+        numeros = poss[l][c];
         break;
     }
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -521,23 +535,12 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
 
 // Depois, faz o inverso
 // procura duas colunas onde um número só pode ir nas mesmas duas linhas
-bool xwing(Tabuleiro &tab)
+bool xwing(Tabuleiro &tab, std::array<std::array<std::vector<int>, 9>, 9> poss)
 {
     bool mudou = false;
 
     // Pré-calcula possibilidades
     // Para cada célula, vê quais são as possibilidades dela
-    std::array<std::array<std::vector<int>, 9>, 9> poss;
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 9; j++)
-        {
-            if (tab[i][j] == 0)
-                poss[i][j] = possibilidades(tab, i, j);
-            else
-                poss[i][j] = {};
-        }
-    }
 
     // X-wing nas linhas
     for (int num = 1; num <= 9; num++) // Para cada número
