@@ -32,6 +32,7 @@ export default function SudokuCell({
     if (value > 9) {
       onChange(9);
     }
+    console.log(solved);
   }, [value]);
 
   //console.log("Focused cell:", focusedCell);
@@ -45,6 +46,19 @@ export default function SudokuCell({
 
   //let bgClass = "";
 
+const getBgClass = () => {
+  if (solved) return "bg-green-600 text-gray-200 font-extrabold shadow-inner shadow-black/60";
+  if (focusedCell.row === i && focusedCell.col === j)
+    return "bg-blue-600";
+  if (isSameValue && isHighlighted) return "bg-yellow-500";
+  if (!editable && isHighlighted) return "bg-blue-900 text-gray-200 font-extrabold shadow-inner shadow-black/60";
+  if (!editable) return "bg-neutral-700 text-gray-200 font-extrabold shadow-inner shadow-black/60";
+  if (isHighlighted) return "bg-blue-900/40";
+
+  // fallback dark mode
+  return "bg-neutral-900";
+};
+
 return (
   <input
     type="number"
@@ -56,57 +70,20 @@ return (
     onFocus={onFocus}
     onBlur={onBlur}
     className={`
-      /* --- Se inválido --- */
-      ${
-        valid
-          ? "text-white"
-          : "text-red-400 bg-red-900/40 border-red-500 focus:bg-red-900/40"
+      text-3xl
+      ${valid
+        ? "text-white"
+        : "text-red-400 bg-red-900/40 border-red-500 focus:bg-red-900/40"
       }
 
-      /* --- SUA lógica tem prioridade absoluta agora --- */
-      ${solved ? "bg-green-600" : ""}
+      ${getBgClass()}
 
-      /* Só aplica destaque se NÃO tiver bgClass (ex: verde do solved) */
-      ${!solved &&
-        focusedCell.row === i &&
-        focusedCell.col === j
-        ? "bg-blue-600 text-white scale-[1.06] shadow-lg shadow-blue-500/40 relative z-10"
+      ${focusedCell.row === i && focusedCell.col === j
+        ? "!text-white scale-[1.1] shadow-lg shadow-blue-500/30 relative z-10"
         : ""
       }
 
-      ${!solved &&
-        focusedCell.row === i &&
-        !(focusedCell.col === j)
-        ? "bg-blue-900/40"
-        : ""
-      }
-
-      ${!solved &&
-        focusedCell.col === j &&
-        !(focusedCell.row === i)
-        ? "bg-blue-900/40"
-        : ""
-      }
-
-      ${!solved &&
-        Math.floor(focusedCell.row / 3) === Math.floor(i / 3) &&
-        Math.floor(focusedCell.col / 3) === Math.floor(j / 3) &&
-        !(focusedCell.row === i && focusedCell.col === j)
-        ? "bg-blue-900/20"
-        : ""
-      }
-
-      /* --- Células fixas mais fortes --- */
-      ${
-        !editable && !solved
-          ? "bg-neutral-700 text-gray-200 font-extrabold shadow-inner shadow-black/60"
-          : ""
-      }
-
-      /* --- Dark mode base --- */
-      ${!solved ? "bg-neutral-900" : ""}
-
-      w-12 h-12 
+      w-14 h-14
       text-center
       border border-neutral-700
       focus:outline-none
@@ -115,12 +92,11 @@ return (
       transition-all duration-100
 
       [-moz-appearance:_textfield]
-      [&::-webkit-inner-spin-button]:appearance-none 
+      [&::-webkit-inner-spin-button]:appearance-none
       [&::-webkit-outer-spin-button]:appearance-none
 
       ${editable ? "cursor-pointer" : "cursor-default"}
 
-      /* --- BORDAS GROSSAS DO BLOCO 3x3 --- */
       ${i % 3 === 0 ? "border-t-4 border-t-neutral-400" : ""}
       ${j % 3 === 0 ? "border-l-4 border-l-neutral-400" : ""}
       ${i === 8 ? "border-b-4 border-b-neutral-400" : ""}

@@ -468,61 +468,73 @@ bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int 
 
 bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
 {
-    std::vector<Tabuleiro> encontradas = {};
     int tentativas = 0;
-    while (encontradas.size() < nSolucoes && tentativas < 10000)
+
+    while (tentativas < 10000)
     {
-        Tabuleiro novoTab = {};
-        preencher(novoTab);
-        encontradas.push_back(novoTab); // A solução completa conta como uma solução encontrada
-        gerarTab(novoTab, dificuldade);
-
-        Tabuleiro copiaTab = novoTab;
-        std::vector<std::pair<int, int>> preenchidos;
-
-        for (int i = 0; i < 9; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                if (novoTab[i][j] != 0)
-                {
-                    preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
-                }
-            }
-        }
         tentativas++;
-        for (int i = 0; i < 10; i++)
+
+        // Cria um tabuleiro primeiro
+        Tabuleiro completo = {};
+        preencher(completo);
+
+        Tabuleiro puzzle = completo;
+        gerarTab(puzzle, dificuldade);
+
+        // Agora, ele vai contar o número de soluções
+        std::vector<Tabuleiro> encontradas;
+        int contador = 0;
+
+        // Função lambda (tipo auto = vai ser determinado pelo compilador mesmo)
+        auto contadorResolver = [&](auto &self, Tabuleiro t, int l, int c)
         {
-            bool sucesso = resolver(copiaTab, preenchidos, 0, 0, 1);
+            if (contador > nSolucoes)
+                return; // early stop
 
-            if (sucesso && std::find(encontradas.begin(), encontradas.end(), copiaTab) == encontradas.end())
+            if (l == 9)
             {
-                encontradas.push_back(copiaTab);
+                contador++;
+                encontradas.push_back(t);
+                return;
             }
-            if (encontradas.size() >= nSolucoes)
-            {
-                tab = novoTab;
 
-                std::cout << "\nJogo criado com " << nSolucoes << " solucoes.\n";
-                for (int l = 0; l < encontradas.size(); l++)
+            int proxL = (c == 8 ? l + 1 : l);
+            int proxC = (c + 1) % 9;
+
+            if (puzzle[l][c] != 0)
+            {
+                self(self, t, proxL, proxC);
+            }
+            else
+            {
+                for (int num = 1; num <= 9; num++)
                 {
-                    Tabuleiro t = encontradas[l];
-                    for (int j = 0; j < 9; j++)
+                    if (verificar(t, l, c, num))
                     {
-                        for (int k = 0; k < 9; k++)
-                        {
-                            std::cout << t[j][k] << " ";
-                        }
-                        std::cout << "\n";
+                        t[l][c] = num;
+                        self(self, t, proxL, proxC); // Esse self faz a recursão
+                        t[l][c] = 0;
                     }
-                    std::cout << "\n";
                 }
-                return true;
             }
+        };
+
+        Tabuleiro copia = puzzle;
+        contadorResolver(contadorResolver, copia, 0, 0);
+
+        // Verifica se tem exatamente n soluções
+        if (contador == nSolucoes)
+        {
+            tab = puzzle;
+
+            return true;
         }
-        std::cout << "\nFalhou. Gerar novo tabuleiro " << encontradas.size() << "/" << nSolucoes << " tentativas " << tentativas << "\n";
-        encontradas = {};
+
+        std::cout << "Tentativa " << tentativas
+                  << " falhou (" << contador
+                  << " solucoes encontradas)\n";
     }
+
     return false;
 }
 

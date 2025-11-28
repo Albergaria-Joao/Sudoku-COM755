@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Button from "./Button";
 
 type UploadBoardProps = {
   onUpload: (file: File) => void;
@@ -30,12 +31,11 @@ function UploadBoard({ onUpload }: UploadBoardProps) {
       onChange={handleFileChange}
       className="block mb-3"
     />
-    <button
+    <Button
       onClick={handleUpload}
-      className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
     >
       Enviar
-    </button>
+    </Button>
   </div>
 );
 
