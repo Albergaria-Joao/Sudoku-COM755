@@ -69,13 +69,7 @@ app.post("/create-game", async (req, res) => {
   try {
     const { board, generatedBoard, userId, diff } = req.body;
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    let gameStatus;
-    if (diff == 6) {
-      gameStatus = "Em andamento (CSV)"
-    }
-    else {
-      gameStatus = "Em andamento"
-    }
+
     //console.log(board);
     const game = await prisma.game.create({
       data: {
@@ -85,7 +79,6 @@ app.post("/create-game", async (req, res) => {
         user: {
           connect: { id: userId },
         },
-        status: gameStatus
       },
     });
 

@@ -479,7 +479,7 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
         tentativas++;
         for (int i = 0; i < 10; i++)
         {
-            bool sucesso = resolver(copiaTab, preenchidos);
+            bool sucesso = resolver(copiaTab, preenchidos, 0, 0, 1);
 
             if (sucesso && std::find(encontradas.begin(), encontradas.end(), copiaTab) == encontradas.end())
             {
@@ -514,11 +514,19 @@ bool criarJogo(Tabuleiro &tab, int nSolucoes, int dificuldade)
 
 // Para fazer o X-Wing, usei IA pra ir descrevendo o algoritmo mesmo, por conta do tempo.
 // Mas é mais para ter esse experimento
+
+// Ele procura duas linhas onde um valor só pode ir nas mesmas duas colunas
+// Ou seja, forma um retângulo com esse valor possível
+// Nenhuma outra linha pode usar esse valor nas colunas
+
+// Depois, faz o inverso
+// procura duas colunas onde um número só pode ir nas mesmas duas linhas
 bool xwing(Tabuleiro &tab)
 {
     bool mudou = false;
 
     // Pré-calcula possibilidades
+    // Para cada célula, vê quais são as possibilidades dela
     std::array<std::array<std::vector<int>, 9>, 9> poss;
     for (int i = 0; i < 9; i++)
     {
@@ -532,9 +540,9 @@ bool xwing(Tabuleiro &tab)
     }
 
     // X-wing nas linhas
-    for (int num = 1; num <= 9; num++)
+    for (int num = 1; num <= 9; num++) // Para cada número
     {
-        for (int l1 = 0; l1 < 9; l1++)
+        for (int l1 = 0; l1 < 9; l1++) // Procura 2 linhas que tenham o número somente em duas colunas
         {
 
             // Pega colunas onde o num pode ir na linha l1
@@ -544,23 +552,23 @@ bool xwing(Tabuleiro &tab)
                     cols1.push_back(c);
 
             if (cols1.size() != 2)
-                continue; // X-Wing precisa de 2 colunas
+                continue; // X-Wing precisa de apenas 2 colunas. Se achar o número em mais, simplesmente continua
 
-            for (int l2 = l1 + 1; l2 < 9; l2++)
+            for (int l2 = l1 + 1; l2 < 9; l2++) // Compara com outra linha para ver se acha também 2 colunas que tenham esse mesmo número como possibilidade
             {
 
                 std::vector<int> cols2;
                 for (int c = 0; c < 9; c++)
                     if (tab[l2][c] == 0 && contem(poss[l2][c], num))
-                        cols2.push_back(c);
+                        cols2.push_back(c); // Adiciona a coluna, se tiver o número como possibilidade
 
-                if (cols2 == cols1)
+                if (cols2 == cols1) // Se as colunas forem as mesmas entre as linhas
                 {
                     //  X-wing encontrado!
                     int cA = cols1[0];
                     int cB = cols1[1];
 
-                    for (int lx = 0; lx < 9; lx++)
+                    for (int lx = 0; lx < 9; lx++) // Elimina essa valor possível (se houver) das outras linhas nessas colunas
                     {
                         if (lx == l1 || lx == l2)
                             continue;
@@ -577,6 +585,20 @@ bool xwing(Tabuleiro &tab)
                             poss[lx][cB].erase(std::remove(poss[lx][cB].begin(), poss[lx][cB].end(), num), poss[lx][cB].end());
                             mudou = true;
                         }
+
+                        // Quando a célula perder todos os candidatos possíveis menos 1, atualiza no tabuleiro automaticamente
+                        if (poss[lx][cA].size() == 1)
+                        {
+                            tab[lx][cA] = poss[lx][cA][0];
+                            mudou = true;
+                        }
+                        if (poss[lx][cB].size() == 1)
+                        {
+                            tab[lx][cB] = poss[lx][cB][0];
+                            mudou = true;
+                        }
+                        // Se mudou, é porque o X-wing conseguiu ajudar em alguma coisa.
+                        // Se não, vai retornar false e terminar o loop que eu coloquei no resolver()
                     }
                 }
             }
@@ -584,6 +606,7 @@ bool xwing(Tabuleiro &tab)
     }
 
     // X-wing nas colunas
+    // Faz a mesma coisa, só que indo pelas colunas
     for (int num = 1; num <= 9; num++)
     {
         for (int c1 = 0; c1 < 9; c1++)
@@ -625,6 +648,17 @@ bool xwing(Tabuleiro &tab)
                         if (tab[rB][cx] == 0 && contem(poss[rB][cx], num))
                         {
                             poss[rB][cx].erase(std::remove(poss[rB][cx].begin(), poss[rB][cx].end(), num), poss[rB][cx].end());
+                            mudou = true;
+                        }
+
+                        if (poss[rA][cx].size() == 1)
+                        {
+                            tab[rA][cx] = poss[rA][cx][0];
+                            mudou = true;
+                        }
+                        if (poss[rB][cx].size() == 1)
+                        {
+                            tab[rB][cx] = poss[rB][cx][0];
                             mudou = true;
                         }
                     }
