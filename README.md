@@ -14,6 +14,8 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 
 ### Arquitetura e principais tecnologias
 
+
+
 #### Frontend:
 * **React**: Biblioteca JS para construir UIs interativas para a web.
 * **Tailwind**: Framework CSS para desenvolvimento de interfaces usando classes utilitárias.
@@ -29,8 +31,8 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 * **[cpp-httplib](https://github.com/yhirose/cpp-httplib)**: Biblioteca C++ "header-only" para criar servidores e clientes HTTP/HTTPS. Criada por Yuji Hirose
 * **[json](https://github.com/nlohmann/json)**: Biblioteca C++ criada por Niels Lohmann, que permite manipulação de objetos JSON.
 
+#### Conteinerização e execução:
 * **Docker**: Para conteinerizar o projeto e facilitar sua execução em ambientes diversos.
-
 ---
 
 ## Funcionalidades principais
