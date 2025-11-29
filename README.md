@@ -82,6 +82,8 @@ Nesse contexto, alguns vídeos que me ajudaram no processo de aprendizado foram:
 
 Apesar dos desafios, acredito que tenha valido a pena: consegui desenvolver um trabalho único entre meus colegas, adicionando ao meu portfólio um projeto com tecnologias altamente relevantes.
 
+Obs.: algo que pode ser notado é que, no C++, usei nomes de variáveis e métodos em português (foi a primeira parte que fiz) e o frontend, em inglês (porque fui fazendo junto com os tutoriais). Quando vi, já era tarde demais para "traduzir" um dos dois.
+
 ---
 
 ## Resultados e análise
