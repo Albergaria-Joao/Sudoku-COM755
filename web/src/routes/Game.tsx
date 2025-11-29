@@ -115,7 +115,7 @@ function Game() {
   // Método para salvar o jogo quando clicar no botão de voltar
   async function onSaveClick(): Promise<void> {
     console.log("Salvando jogo...", localStorage.getItem("game_id"));
-    let confirmSave = window.confirm(
+    const confirmSave = window.confirm(
       "Tem certeza que deseja voltar à seleção? O progresso atual será salvo."
     );
     
@@ -149,8 +149,6 @@ function Game() {
   function checkSolved(
     validMatrix: boolean[][],
     board: number[][],
-    i: number,
-    j: number
   ): void {
     if (
       !board.flat().every((m) => m !== 0) ||

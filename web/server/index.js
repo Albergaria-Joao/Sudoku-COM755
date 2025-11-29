@@ -12,15 +12,16 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+// Verifica as credenciais de login
 app.post("/login", async (req, res) => {
   try {
-    const { login, password } = req.body;
+    const { login, password } = req.body; // pega os dados do corpo da request
     const user = await prisma.user.findUnique({ where: { login } });
     if (!user || !user.password) {
       return res.status(401).json({ error: "Usuário não encontrado" });
     }
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, user.password); // Encontrando um usuário, compara a senha dada com a armazenada para ele
 
     if (!isValid) {
       return res.status(401).json({ error: "password incorreta" });
@@ -35,6 +36,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// Criar usuário com login e senha fornecidos
 app.post("/create-user", async (req, res) => {
   try {
     const { login, password } = req.body;
@@ -65,6 +67,7 @@ app.post("/create-user", async (req, res) => {
   }
 });
 
+// Criar jogo
 app.post("/create-game", async (req, res) => {
   try {
     const { board, generatedBoard, userId, diff } = req.body;
@@ -97,6 +100,7 @@ app.post("/create-game", async (req, res) => {
   }
 });
 
+// Pega a tabela de jogos
 app.post("/get-games", async (req, res) => {
   try {
     const { userId } = req.body;
@@ -126,6 +130,7 @@ app.post("/get-games", async (req, res) => {
   }
 });
 
+// Carrega jogo salvo
 app.post("/load-game", async (req, res) => {
   try {
     const { gameId } = req.body;
@@ -149,6 +154,7 @@ app.post("/load-game", async (req, res) => {
   }
 });
 
+  // Deleta jogo
 app.post("/delete-game", async (req, res) => {
   try {
     const { gameId } = req.body;
@@ -167,6 +173,7 @@ app.post("/delete-game", async (req, res) => {
   }
 });
 
+// Salva jogo
 app.post("/save-game", async (req, res) => {
   try {
     const { gameId, board } = req.body;
@@ -190,6 +197,7 @@ app.post("/save-game", async (req, res) => {
   }
 });
 
+// Atualiza status (de "em andamento" para "Resolvido", por ex)
 app.post("/update-status", async (req, res) => {
   try {
     const { gameId, status } = req.body;
@@ -213,6 +221,7 @@ app.post("/update-status", async (req, res) => {
   }
 });
 
+// Pega a tabela de usuários, junto com os jogos resolvidos deles
 app.post("/get-leaderboard", async (req, res) => {
   try {
     const { userId } = req.body;

@@ -14,11 +14,13 @@ function Select() {
   console.log(api);
   const navigate = useNavigate();
 
-  const [games, setGames] = useState<any[]>([]);
+  // Estados para os jogos e leaderboard
+  const [games, setGames] = useState<any[]>([]); 
   const [leaderboard, setLeaderboard] = useState<
     { id: string; name: string; score: number }[]
   >([]);
 
+  // Pega os jogos para colocar na tabela
   async function getGames(): Promise<void> {
     const res = await fetch(`${backend}/get-games`, {
       method: "POST",
@@ -27,9 +29,10 @@ function Select() {
     });
 
     const data = await res.json();
-    setGames(data.games || []); // ← salva os jogos no estado
+    setGames(data.games || []); // salva os jogos no estado
   }
 
+  // Pega a leaderboard
   async function getLeaderboard(): Promise<void> {
     const res = await fetch(`${backend}/get-leaderboard`, {
       method: "POST",
@@ -38,9 +41,10 @@ function Select() {
     });
 
     const data = await res.json();
-    let lb: { id: string; name: string; score: number }[] = [];
+    const lb: { id: string; name: string; score: number }[] = [];
     console.log(data);
 
+    // Calcula as pontuações a partir da dificuldade dos jogos retornados (resolvidos) de cada usuário 
     for (let i = 0; i < data.users.length; i++) {
       let score = 0;
 
@@ -59,6 +63,7 @@ function Select() {
     //setGames(data.games || []); // ← salva os jogos no estado
   }
 
+  // Sempre executa quando carrega a página
   useEffect(() => {
     //onGenGameClick();
     if (!localStorage.getItem("user") || localStorage.getItem("user") === "") {
@@ -72,6 +77,7 @@ function Select() {
     getGames();
   }, []);
 
+  // Geração de jogo
   async function onGenGameClick(): Promise<void> {
     const dif: number = Number(
       (document.getElementById("select_dif") as HTMLSelectElement).value
@@ -121,10 +127,12 @@ function Select() {
 
   function onLogoutClick() {
     localStorage.removeItem("user");
+    localStorage.removeItem("user_id");
     navigate("/login");
   }
 
-  async function onLoadClick(gameId: String, gameDif: number): Promise<void> {
+  // Carregar jogo salvo da tabela
+  async function onLoadClick(gameId: string, gameDif: number): Promise<void> {
     console.log("Loading game ID:", gameId);
     const gameDB = await fetch(`${backend}/load-game`, {
       method: "POST",
@@ -145,7 +153,7 @@ function Select() {
       gameData.gameStatus.startsWith("Resolvido")
     );
 
-    console.log("RESOLVIDO", localStorage.getItem("game_solved"));
+    //console.log("RESOLVIDO", localStorage.getItem("game_solved"));
     navigate("/game", {
       state: {
         generatedBoard: gameData["generatedBoard"],
@@ -153,7 +161,8 @@ function Select() {
     });
   }
 
-  async function onDeleteClick(gameId: String): Promise<void> {
+  // Deletar jogo
+  async function onDeleteClick(gameId: string): Promise<void> {
     const confirmDelete = window.confirm(
       "Tem certeza que deseja deletar este jogo? Esta ação não pode ser desfeita."
     );
@@ -161,7 +170,7 @@ function Select() {
       return;
     }
 
-    const res = await fetch(`${backend}/delete-game`, {
+    await fetch(`${backend}/delete-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -171,6 +180,7 @@ function Select() {
     getGames();
   }
 
+  // Upload de arquivo CSV
   function onUpload(file: File | null): void {
     if (file) {
       const reader = new FileReader();
@@ -186,6 +196,7 @@ function Select() {
     }
   }
 
+  // Faz o parsing do CSV para o formato do jogo (matriz)
   async function parseCSV(csvText: string | ArrayBuffer | null) {
     if (typeof csvText !== "string") {
       console.error("Não é string");
@@ -205,6 +216,9 @@ function Select() {
         return;
       }
     }
+
+    // Cria o jogo a partir dessa matriz
+
     const gameDB = await fetch(`${backend}/create-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -239,7 +253,6 @@ function Select() {
 return (
   <div className="min-h-screen bg-gray-900 text-white flex">
 
-    {/* BOTÃO DE LOGOUT NO CANTO SUPERIOR ESQUERDO */}
     <div className="absolute top-4 left-7">
       <Button onClick={onLogoutClick} className="flex items-center gap-2">
         <LogOut />
@@ -247,19 +260,15 @@ return (
       </Button>
     </div>
 
-    {/* LADO ESQUERDO */}
     <div className="w-1/3 p-8 flex flex-col gap-10 mt-5">
 
-      {/* Bem-vindo */}
       <h1 className="text-2xl font-bold">
         Bem-vindo, {localStorage.getItem("user")}
       </h1>
 
-      {/* Aqui dentro vão: <GenButton> <UploadBoard> e Leaderboard */}
       <GenButton onGenGameClick={onGenGameClick} />
       <UploadBoard onUpload={onUpload} />
 
-      {/* LEADERBOARD */}
       <div>
         <h2 className="text-xl font-semibold mb-3">Leaderboard</h2>
 
@@ -291,7 +300,6 @@ return (
       </div>
     </div>
 
-    {/* LADO DIREITO — TABELA DE JOGOS */}
     <div className="w-2/3 p-8">
       <h2 className="text-2xl font-bold mb-4">Seus jogos</h2>
 

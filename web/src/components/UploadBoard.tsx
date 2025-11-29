@@ -8,6 +8,7 @@ type UploadBoardProps = {
 function UploadBoard({ onUpload }: UploadBoardProps) {
   const [file, setFile] = useState<File | null>(null);
 
+  // Seta o estado File para o arquivo que foi feito o upload
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setFile(event.target.files[0]);
@@ -16,7 +17,7 @@ function UploadBoard({ onUpload }: UploadBoardProps) {
 
   const handleUpload = () => {
     if (file) {
-      onUpload(file);
+      onUpload(file); // Usa a função passada do componente pai
     } else {
       alert("Selecione um arquivo primeiro!");
     }

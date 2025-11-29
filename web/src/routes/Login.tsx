@@ -16,6 +16,7 @@ function Login() {
     }
   }, []); // Roda isso logo que carregar a página
 
+  // Verifica credenciais
   async function verifyLogin(login: string, pass: string): Promise<void> {
     const res = await fetch(`${backend}/login`, {
       method: "POST",

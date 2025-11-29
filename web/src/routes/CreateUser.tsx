@@ -15,6 +15,7 @@ function CreateUser() {
     }
   }, []);
 
+  // Faz o cadastro do usuário
   async function createUser(login: string, pass: string): Promise<void> {
     const res = await fetch(`${backend}/create-user`, {
       method: "POST",

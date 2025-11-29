@@ -13,8 +13,9 @@
 #include <cstdlib> // Needed for rand() and srand()
 #include <ctime>   // Needed for time()
 
-using Tabuleiro = std::array<std::array<int, 9>, 9>;
+using Tabuleiro = std::array<std::array<int, 9>, 9>; // Para deixar mais legível
 
+// Declara os protótipos
 bool preencher(Tabuleiro &tab, int l = 0, int c = 0);
 bool verificar(Tabuleiro &tab, int l, int c, int num);
 void gerarTab(Tabuleiro &tab, int dif);
@@ -34,11 +35,12 @@ int main()
 {
     httplib::Server svr;
 
+    // Rota de verificar input
     svr.Post("/verificar", [](const httplib::Request &req, httplib::Response &res)
              {
         try {
             auto body = json::parse(req.body);
-            Tabuleiro tabuleiro = body["tabuleiro"];
+            Tabuleiro tabuleiro = body["tabuleiro"]; // Pega tabuleiro do corpo da request
 
             bool valido = verificar(tabuleiro, body["r"], body["c"], body["num"]);
 
@@ -49,7 +51,7 @@ int main()
             res.set_content("{\"erro\": \"JSON inválido\"}", "application/json");
         } });
 
-    // Habilita CORS
+    // Habilita CORS para o frontend conseguir conectar
     svr.set_pre_routing_handler([](const httplib::Request &req, httplib::Response &res)
                                 {
         res.set_header("Access-Control-Allow-Origin", "*");
@@ -60,6 +62,7 @@ int main()
     svr.Options(R"(.*)", [](const httplib::Request &req, httplib::Response &res)
                 { res.status = 200; });
 
+    // Rota de gerar jogo
     svr.Post("/gerar", [](const httplib::Request &req, httplib::Response &res)
              {
         try {
@@ -121,7 +124,7 @@ int main()
 
             start = std::chrono::steady_clock::now();
 
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < 9; i++) { // Repete o preenchimento porque ele é uma parte da resolução, então deve ser contabilizado no tempo
                 for (int j = 0; j < 9; j++) {
                     if (tab[i][j] != 0) {
                         preenchidos.push_back({i, j}); // Dá append desses valores à lista de preenchidos
@@ -138,7 +141,7 @@ int main()
 
             // Algoritmo eliminando as possibilidades com o X-Wing
 
-            backup = body["tabuleiro"];
+            backup = body["tabuleiro"]; // Para resolver com um tabuleiro limpo
 
             preenchidos = {};
 
@@ -152,7 +155,7 @@ int main()
                 }
             }
 
-            // Mapeia possibilidades
+            // Mapeia possibilidades de cada célula de uma vez porque o X-Wing vai usar isso
             std::array<std::array<std::vector<int>, 9>, 9> poss;
             for (int i = 0; i < 9; i++)
             {
@@ -176,7 +179,7 @@ int main()
             json resposta = {
                 {"tabuleiro", tab},
                 {"sucesso", sucesso},
-                {"tempo", {t_normal, t_possib, t_xwing}}
+                {"tempo", {t_normal, t_possib, t_xwing}} // Retorna os 3 tempos
             };
             // std::cout << resposta.dump(2) << std::endl;
             std::cout << duration.count();
@@ -203,7 +206,7 @@ bool verificar(Tabuleiro &tab, int l, int c, int num)
     }
 
     // Verificar se não tem igual nos "sub" quadradinhos 3x3
-    int pX, pY;
+    int pX, pY; // Decide o "pivô" que vai servir de ponto de referência (ou seja, em qual dos 3x3 a célula atual está)
     if (l < 3)
     {
         pX = 1;
@@ -234,7 +237,7 @@ bool verificar(Tabuleiro &tab, int l, int c, int num)
     {
         for (int j = -1; j < 2; j++)
         {
-            if (tab[pX + i][pY + j] == num)
+            if (tab[pX + i][pY + j] == num) // Verifica se não tem igual no 3x3
             {
                 return false;
             }
@@ -244,7 +247,7 @@ bool verificar(Tabuleiro &tab, int l, int c, int num)
     return true;
 }
 
-bool preencher(Tabuleiro &tab, int l, int c)
+bool preencher(Tabuleiro &tab, int l, int c) // Preenche o tabuleiro inteiro usando backtracking para já gerar uma solução
 {
 
     if (l == 9)
@@ -280,7 +283,7 @@ bool preencher(Tabuleiro &tab, int l, int c)
 
 void gerarTab(Tabuleiro &tab, int dif)
 {
-
+    // Apaga células do tabuleiro preenchido de acordo com a dificuldade desejada para criar o jogo
     int n_brancos, max, min;
 
     switch (dif)
@@ -318,7 +321,7 @@ void gerarTab(Tabuleiro &tab, int dif)
         bool apagou = false;
         while (apagou == false)
         {
-            int r_l = rand() % 9; // Número aleatório de 0 a 8
+            int r_l = rand() % 9; // Número aleatório de 0 a 8 (achei a sintaxe esquisita)
             int r_c = rand() % 9;
             if (tab[r_l][r_c] != 0)
             {
@@ -334,7 +337,7 @@ void gerarTab(Tabuleiro &tab, int dif)
 }
 
 bool contemPar(const std::vector<std::pair<int, int>> &v, int i, int j)
-{ // Verifica se os preenchidos contêm o par dado
+{ // Verifica se os preenchidos previamente contêm o par dado
     return std::any_of(v.begin(), v.end(),
                        [i, j](const std::pair<int, int> &p)
                        { return p.first == i && p.second == j; });
@@ -345,7 +348,7 @@ bool contem(const std::vector<int> &v, int valor)
     return std::find(v.begin(), v.end(), valor) != v.end();
 }
 
-// Para ver quais são as possibilidades, caso escolha usar esse método
+// Para ver quais são as possibilidades, caso escolha usar esse método de solver
 std::vector<int> possibilidades(Tabuleiro &tab, int l, int c)
 {
     // Verificar se não tem igual na linha e coluna
@@ -353,10 +356,10 @@ std::vector<int> possibilidades(Tabuleiro &tab, int l, int c)
 
     for (int i = 0; i < 9; i++)
     {
-
+        // Apaga o valor das possibilidades, se tiver
         if (tab[i][c] != 0 && contem(numeros, tab[i][c]))
         {
-            numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[i][c]), numeros.end()); // Apaga o valor das possibilidades
+            numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[i][c]), numeros.end()); 
         }
         if (tab[l][i] != 0 && contem(numeros, tab[l][i]))
         {
@@ -398,14 +401,15 @@ std::vector<int> possibilidades(Tabuleiro &tab, int l, int c)
         {
             if (tab[pX + i][pY + j] != 0 && contem(numeros, tab[pX + i][pY + j]))
             {
-                numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[pX + i][pY + j]), numeros.end());
+                numeros.erase(std::remove(numeros.begin(), numeros.end(), tab[pX + i][pY + j]), numeros.end()); // Apaga do vetor das possibilidades
             }
         }
     }
-
+    // Retorna o vetor das possibilidades
     return numeros;
 }
 
+// Método de solver
 bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int l, int c, int tecnica, std::array<std::array<std::vector<int>, 9>, 9> poss)
 {
     if (l == 9)
@@ -423,39 +427,39 @@ bool resolver(Tabuleiro &tab, std::vector<std::pair<int, int>> preenchidos, int 
     }
 
     std::vector<int> numeros;
-    switch (tecnica)
+    switch (tecnica) // De acordo com o método escolhido na hora de chamar o método, cai num desses
     {
     case 0:
-        numeros = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        numeros = {1, 2, 3, 4, 5, 6, 7, 8, 9}; // Aleatório
         break;
     case 1:
-        numeros = possibilidades(tab, l, c);
+        numeros = possibilidades(tab, l, c); // Afunilando as possibilidades de forma mais simples
         break;
     case 2:
         while (xwing(tab, poss))
         {
         }
-
+        // Usando x-wing, com a matriz de possibilidades geralzona
         numeros = poss[l][c];
         break;
     }
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine rng(seed);
 
-    std::shuffle(numeros.begin(), numeros.end(), rng);
+    std::shuffle(numeros.begin(), numeros.end(), rng);  // Embaralha o vetor das possibilidades
 
-    for (int num : numeros)
+    for (int num : numeros) // Para cada possibilidade
     {
-        if (verificar(tab, l, c, num))
+        if (verificar(tab, l, c, num)) // Verifica se é válido
         {
-            tab[l][c] = num;
+            tab[l][c] = num; // Preenche a célula
             // std::cout << "SOCORRO\n";
 
-            if (resolver(tab, preenchidos, proxL, proxC))
+            if (resolver(tab, preenchidos, proxL, proxC)) // Tenta preencher para o próximo
             {
                 return true;
             }
-            tab[l][c] = 0; // Se o próximo não tiver conseguido preencher, volta e vai para o próximo número neste aqui
+            tab[l][c] = 0; // Se o próximo não tiver conseguido preencher, volta, apaga e vai para o próximo número neste aqui
         }
     }
 
