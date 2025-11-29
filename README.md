@@ -91,9 +91,9 @@ Com relação aos algoritmos, foi possível perceber as seguintes observações:
 * O que utiliza eliminação de possibilidades por célula apresenta desempenho muito superior (justamente por afunilar os testes do backtracking), com um tempo de execução muito menor e é mais consistente. Precisa de décimos de milissegundo para resolver um tabuleiro de qualquer dificuldade.
 * Já o que implementa X-Wing (uma forma mais sofisticada de eliminar as possibilidades), embora não tenha tanta diferença em tempo para o 2º, apresenta desempenho um pouco melhor e, assim como ele, fica na casa dos décimos de milissegundo.
 
-Na tabela que segue, estão os tempos médios de cada algoritmo na resolução dos tabuleiros de cada dificuldade:
+Na tabela que segue, estão os tempos médios de cada algoritmo, em milissegundos, na resolução dos tabuleiros de cada dificuldade:
 
-| Dificuldade | Aleatório (ms) | Elim. Possib. (ms) | X-Wing |
+| Dificuldade | Aleatório (ms) | Elim. Possib. (ms) | X-Wing (ms) |
 | :------- | :------: | :-------: | -------: | 
 | Fácil | 0.25 | 0.18 | 0.16 |
 | Médio | 2.15 | 0.21 | 0.18 |
