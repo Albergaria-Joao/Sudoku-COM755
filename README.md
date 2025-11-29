@@ -113,4 +113,71 @@ No mais, a entrega atendeu a todos os requisitos explicitados pelo professor.
 
 ---
 
-## Como executar o projeto (a fazer)
+## Como executar o projeto
+
+### Executando localmente
+
+#### Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+* [Node.js](https://nodejs.org/)
+* [NPM](https://www.npmjs.com/)
+* [MinGW-w64](https://www.mingw-w64.org/source/)
+* [PostgreSQL](https://www.postgresql.org/download/)
+---
+
+#### Passo a passo
+
+1.  **Clone o repositório**
+
+    Utilizando Github Desktop ou linha de comando git
+
+2.  **Crie um arquivo `.env` na pasta `web/prisma`**
+
+    Com o conteúdo:
+    ```
+    DATABASE_URL="postgresql://usuario:senha@localhost:PORTA/sudoku"
+    // Substitua pelas suas credenciais e porta
+    ```
+    
+3.  **Execute a migration**
+
+    Na pasta `web/prisma` em um terminal, execute
+    ```bash
+    npx prisma migrate dev
+    ```
+    Isso vai colocar o schema sobre o banco Postgres
+    
+4.  **Instale as dependências**
+
+    Na pasta `web` em um terminal, execute
+    ```bash
+    npm run dev
+    ```
+    
+5.  **Inicie o backend**
+
+    No diretório `web/server`, execute
+    ```bash
+    node index.js
+    ```
+
+6.  **Inicie a API C++**
+
+    Na pasta `api` em um terminal, rode:
+    ```bash
+    g++ main.cpp -o build/server -std=c++17 -lws2_32
+
+    .\build\server.exe
+    ```
+    Para fazer o build e executar o servidor, respectivamente
+
+7.  **Execute o frontend**
+
+    Por fim, na pasta `web`, rode:
+    ```bash
+    npm run dev
+    ```
+    O frontend estará rodando na porta exibida (ex: `http://localhost:5173`.
+
+    Para testar o projeto, agora, é só ir até essa URL.
