@@ -1,10 +1,10 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
-import dotenv from "dotenv";
+//import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 
-dotenv.config({ path: "../.env" }); // caminho relativo ao index.ts
+//dotenv.config(); // caminho relativo ao index.ts
 
 const app = express();
 const prisma = new PrismaClient();

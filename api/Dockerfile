@@ -13,7 +13,7 @@ COPY . .
 RUN g++ main.cpp -o build/server -std=c++17
 
 # Expõe a porta usada pelo servidor
-EXPOSE 8080
+EXPOSE 5000
 
 # Executa o servidor
 CMD ["./build/server"]

@@ -1,20 +1,57 @@
-#version: "3.8"
+version: '3.8'
+
 services:
-  api:
-    build: ./api
-    container_name: api_cpp_sudoku
+  # Banco de Dados
+  db:
+    image: postgres:15-alpine
+    container_name: sudoku_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sudokudb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # API em C++
+  api-cpp:
+    build: ./API
+    container_name: sudoku_cpp
     ports:
       - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
 
+  # Backend Node
+  backend-node:
+
+    build:
+      context: ./web         # O contexto agora é 'web' inteira
+      dockerfile: server/Dockerfile # Apontamos onde está o Dockerfile
+    container_name: sudoku_backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/sudokudb
+
+  # Frontend Vite
   frontend:
     build: ./web
-    container_name: frontend_sudoku
+    container_name: sudoku_frontend
     ports:
-      - "5173:80"
+      - "5173:5173"
     depends_on:
-      - api
-      - backend
+      - backend-node
+    environment:
+      # Vite precisa que variáveis comecem com VITE_
+      VITE_API_URL: http://localhost:4000 
 
-  backend:
-    build: ./web/server
-    container_name: backend_sudoku
+volumes:
+  postgres_data:
