@@ -17,6 +17,7 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 #### Frontend:
 * **React**: Biblioteca JS para construir UIs interativas para a web.
 * **Tailwind**: Framework CSS para desenvolvimento de interfaces usando classes utilitárias.
+* **TypeScript**: Superconjunto sintático estrito de JS. Adiciona tipagem estática opcional.
 
 #### Backend:
 * **Node.js**: Ambiente de execução JS para processamento no servidor.
@@ -62,94 +63,42 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 * **Para acessar o Sudoku, é necessário fazer login (uma vez que os jogos são associados a um usuário)**
   1. É possível se cadastrar facilmente, apenas criando login e senha (criptografada com bcrypt)
 * **Os jogos resolvidos manualmente por cada usuário são contabilizados de acordo com a dificuldade para exibir uma leaderboard**
----
-
-## Pré-requisitos
-
-Antes de começar, certifique-se de ter instalado em sua máquina:
-* [Node.js](https://nodejs.org/) (Versão 12 ou superior)
-* [NPM](https://www.npmjs.com/) ou Yarn.
-* [Python](https://www.python.org/downloads/) (Versão sugerida: 3.13).
----
-
-## Como rodar o Projeto
-
-1.  **Clone o repositório**
-
-    Utilizando Github Desktop ou linha de comando git
-
-2.  **Crie um arquivo `.env`**
-
-    Com o conteúdo:
-    ```
-    MONGO_URI="mongodb+srv://usuario:senha@cluster.xxxxx.mongodb.net/database"
-    // Substituta o valor pela URI do seu banco de dados MongoDB
-    ```
-
-    Você já deverá ter criado um cluster com as collections membro, tarefa e equipe.
-
-    Para criar uma conta admin com senha admin e conseguir testar, na sua collection membro, cole os seguintes valores em um novo registro:
-    ```
-    login: "admin"
-    senha: Binary.createFromBase64('JDJiJDEyJHFJT0Z5VmpKS0NvNkpBUEE2WEhRZHUxMGJNVFRJTkJ5RDBlQlRoUmdzTHYwbTFZT1haSGtP', 0)
-    auth: "admin"
-    ```
-    
-3.  **Inicie o ambiente virtual Python**
-
-    Na pasta `backend`, execute
-    ```bash
-    python -m venv venv
-    ```
-
-    E para ativar:
-    ```bash
-    venv\Scripts\Activate
-    ```
-
-4.  **Instale as bibliotecas Python**
-
-    Ainda no backend e com venv ativado, rode:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-5.  **Suba o backend**
-
-    ```bash
-    python -m flask run
-    ```
-
-6.  **Instale as dependências do frontend:**
-
-    Agora, na pasta do frontend:
-    ```bash
-    npm install
-    ```
-
-7.  **Configure a API:**
-
-    Verifique o arquivo `src/api.js`. Certifique-se de que a `baseURL` aponta para o endereço correto do seu Backend (Python/Flask).
-    ```javascript
-    // Exemplo em src/api.js
-    baseURL: '[http://localhost:5000](http://localhost:5000)'
-    ```
-
-8.  **Execute o servidor de desenvolvimento:**
-
-    ```bash
-    npm run dev
-    ```
-
-9.  **Garanta que o CORS no backend libera a porta correta:**
-
-    Um erro comum é que o backend não autorize o acesso a suas rotas pelo frontend por uma configuração errada do CORS. 
-
-    Certifique-se de que, no arquivo `backend/app/__init__.py`, o parâmetro `origins` tenha a mesma porta indicada no terminal ao rodar o frontend (geralmente 8080 ou 8081)
-
-10.  **Acesse a aplicação:**
-
-    Abra o navegador em `http://localhost:8081` (ou o endereço indicado no terminal).
-
 
 ---
+
+## Principais dificuldades
+
+Para este projeto, decidi me desafiar a trabalhar com uma linguagem com que tive pouquíssimo contato (C++) e tecnologias que vi necessidade de aprender/praticar mais (React, TypeScript, Prisma, Postgres).
+
+Acredito, portanto, que uma de minhas principais dificuldades tenha sido justamente a adaptação à sintaxe do C++ e à forma como o desenvolvimento web nesse paradigma funciona. 
+
+Também posso citar a integração entre as 3 partes do sistema por meio de web socket (especialmente do C++, que foi bastante trabalhosa e requeriu muita pesquisa).
+
+Nesse contexto, alguns vídeos que me ajudaram no processo de aprendizado foram:
+* [Learn Prisma In 60 Minutes - Web Dev Simplified](https://www.youtube.com/watch?v=RebA5J-rlwg)
+* [Curso de React para Completos Iniciantes - Felipe Rocha](https://www.youtube.com/watch?v=2RWsLmu8yVc)
+* [CURSO DE TYPESCRIPT NA PRÁTICA - APRENDA TYPESCRIPT EM 1 HORA - Matheus Battisti](https://www.youtube.com/watch?v=lCemyQeSCV8)
+* [Docker em 22 minutos - teoria e prática - Ayrton Teshima](https://www.youtube.com/watch?v=Kzcz-EVKBEQ)
+
+Apesar dos desafios, acredito que tenha valido a pena: consegui desenvolver um trabalho único entre meus colegas, adicionando ao meu portfólio um projeto com tecnologias altamente relevantes.
+
+---
+
+## Resultados e análise
+
+Com relação aos algoritmos, foi possível perceber as seguintes observações:
+* O solver básico 100% aleatório é o mais volátil, apresentando tempos de resolução muito díspares para um mesmo tabuleiro quando aplicado várias vezes, justamente por essa volatilidade. Fica na casa dos milissegundos, em geral.
+* O que utiliza eliminação de possibilidades por célula apresenta desempenho muito superior (justamente por afunilar os testes do backtracking), com um tempo de execução muito menor e é mais consistente. Precisa de décimos de milissegundo para resolver um tabuleiro de qualquer dificuldade.
+* Já o que implementa X-Wing (uma forma mais sofisticada de eliminar as possibilidades), embora não tenha tanta diferença em tempo para o 2º, apresenta desempenho um pouco melhor e, assim como ele, fica na casa dos décimos de milissegundo.
+
+### Possíveis melhorias
+
+O principal gargalo do programa se encontra na geração de jogos: tabuleiros mais difíceis e com 2/3 soluções podem demorar um tempo quase infinito para serem criados (uma vez que é preciso encontrar um jogo que tenha exatamente N soluções, o que leva várias iterações de tabuleiros sendo gerados e resolvidos).
+
+Por restrições de tempo, não foi possível aprimorar esse algoritmo, porém uma possibilidade a explorar é o uso de multithreading.
+
+No mais, a entrega atendeu a todos os requisitos explicitados pelo professor.
+
+---
+
+## Executar o projeto (a fazer)
