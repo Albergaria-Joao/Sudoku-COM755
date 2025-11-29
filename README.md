@@ -91,9 +91,19 @@ Com relação aos algoritmos, foi possível perceber as seguintes observações:
 * O que utiliza eliminação de possibilidades por célula apresenta desempenho muito superior (justamente por afunilar os testes do backtracking), com um tempo de execução muito menor e é mais consistente. Precisa de décimos de milissegundo para resolver um tabuleiro de qualquer dificuldade.
 * Já o que implementa X-Wing (uma forma mais sofisticada de eliminar as possibilidades), embora não tenha tanta diferença em tempo para o 2º, apresenta desempenho um pouco melhor e, assim como ele, fica na casa dos décimos de milissegundo.
 
+Na tabela que segue, estão os tempos médios de cada algoritmo na resolução dos tabuleiros de cada dificuldade:
+
+| Dificuldade | Aleatório (ms) | Elim. Possib. (ms) | X-Wing |
+| :------- | :------: | :-------: | -------: | 
+| Fácil | 0.25 | 0.18 | 0.16 |
+| Médio | 2.15 | 0.21 | 0.18 |
+| Difícil | 4.76 | 0.23 | 0.19 |
+| Expert | 28.44 | 0.22 | 0.18 |
+| Insano | 71.36 | 0.25 | 0.19 |
+
 ### Possíveis melhorias
 
-O principal gargalo do programa se encontra na geração de jogos: tabuleiros mais difíceis e com 2/3 soluções podem demorar um tempo quase infinito para serem criados (uma vez que é preciso encontrar um jogo que tenha exatamente N soluções, o que leva várias iterações de tabuleiros sendo gerados e resolvidos).
+O principal gargalo do programa se encontra na geração de jogos: tabuleiros mais difíceis e com 2/3 soluções podem demorar um tempo indeterminado para serem criados (uma vez que é preciso encontrar um jogo que tenha exatamente N soluções, o que leva várias iterações de tabuleiros sendo gerados e resolvidos).
 
 Por restrições de tempo, não foi possível aprimorar esse algoritmo, porém uma possibilidade a explorar é o uso de multithreading.
 
@@ -101,4 +111,4 @@ No mais, a entrega atendeu a todos os requisitos explicitados pelo professor.
 
 ---
 
-## Executar o projeto (a fazer)
+## Como executar o projeto (a fazer)
