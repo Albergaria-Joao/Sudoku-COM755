@@ -202,7 +202,7 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 
     Na pasta `web` em um terminal, execute
     ```bash
-    npm run dev
+    npm install
     ```
     
 5.  **Inicie o backend**
