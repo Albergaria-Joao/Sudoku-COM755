@@ -29,6 +29,8 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 * **[cpp-httplib](https://github.com/yhirose/cpp-httplib)**: Biblioteca C++ "header-only" para criar servidores e clientes HTTP/HTTPS. Criada por Yuji Hirose
 * **[json](https://github.com/nlohmann/json)**: Biblioteca C++ criada por Niels Lohmann, que permite manipulação de objetos JSON.
 
+* **Docker**: Para conteinerizar o projeto e facilitar sua execução em ambientes diversos.
+
 ---
 
 ## Funcionalidades principais
@@ -115,7 +117,54 @@ No mais, a entrega atendeu a todos os requisitos explicitados pelo professor.
 
 ## Como executar o projeto
 
-### Executando localmente
+O projeto está dockerizado. Portanto, para testá-lo, é possível tanto usar Docker como rodá-lo localmente. 
+
+O passo a passo para ambas as opções será explicado aqui.
+
+### a. Executando com Docker
+
+#### Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+#### Passo a passo
+
+1.  **Clone o repositório**
+
+    Utilizando Github Desktop ou linha de comando git
+
+2.  **Construa o container Docker**
+
+    Com a aplicação Docker Desktop aberta em segundo plano, execute na pasta raiz do repositório:
+    ```bash
+    docker compose up --build
+    ```
+    Com CTRL + C, pare o container quando ele for construído.
+    
+
+3.  **Suba o container**
+
+    No mesmo diretório e ainda com o Docker Desktop aberto, rode:
+    ```bash
+    docker compose up
+    ```
+
+4.  **Faça a migração do prisma**
+
+    Com o container subido, abra outro terminal paralelamente e execute este comando:
+    ```bash
+    docker compose exec backend-node npx prisma migrate dev
+    ```
+    Isto é, dentro do container, será aplicado o schema ao banco de dados Postgres.
+
+5. **Acesse o frontend**
+
+   Abra a URL exibida ao subir o container (ex: `http://localhost:5173`) para testar o projeto.
+
+---
+
+### b. Executando localmente
 
 #### Pré-requisitos
 
@@ -124,7 +173,6 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 * [NPM](https://www.npmjs.com/)
 * [MinGW-w64](https://www.mingw-w64.org/source/)
 * [PostgreSQL](https://www.postgresql.org/download/)
----
 
 #### Passo a passo
 
@@ -135,7 +183,7 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 2.  **Crie um arquivo `.env` na pasta `web/prisma`**
 
     Com o conteúdo:
-    ```
+    ```bash
     DATABASE_URL="postgresql://usuario:senha@localhost:PORTA/sudoku"
     // Substitua pelas suas credenciais e porta
     ```
@@ -178,6 +226,6 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
     ```bash
     npm run dev
     ```
-    O frontend estará rodando na porta exibida (ex: `http://localhost:5173`.
+    O frontend estará rodando na porta exibida (ex: `http://localhost:5173`).
 
     Para testar o projeto, agora, é só ir até essa URL.
