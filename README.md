@@ -33,6 +33,9 @@ Este projeto é uma aplicação web que permite gerar e resolver tabuleiros de S
 
 #### Conteinerização e execução:
 * **Docker**: Para conteinerizar o projeto e facilitar sua execução em ambientes diversos.
+
+### Design de UI:
+* **Gemini 3 Pro**: Auxílio na formatação e design das telas de interface do usuário. 
 ---
 
 ## Funcionalidades principais
